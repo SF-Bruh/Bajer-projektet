@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="da">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hvor mange genstande må du drikke?</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; max-width: 860px; margin: 32px auto; padding: 0 16px; line-height: 1.35; }
+    h1 { font-size: 22px; margin: 0 0 16px; }
+    .card { border: 1px solid rgba(120,120,120,.35); border-radius: 12px; padding: 16px; margin: 12px 0; background: rgba(120,120,120,.06); }
+    .row { display: grid; grid-template-columns: 1fr 220px; gap: 12px; align-items: center; margin: 10px 0; }
+    label { font-size: 14px; }
+    input { width: 100%; padding: 10px 12px; font-size: 16px; border-radius: 10px; border: 1px solid rgba(120,120,120,.45); background: transparent; }
+    .result { font-size: 18px; }
+    .muted { opacity: .8; font-size: 13px; }
+    .error { color: #b00020; }
+    details { margin-top: 10px; }
+    summary { cursor: pointer; }
+    button { padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(120,120,120,.45); background: transparent; cursor: pointer; font-size: 14px; }
+    .inline { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  </style>
+</head>
+<body>
+  <h1>Hvor mange genstande må du drikke dagen før arbejde?</h1>
+
+  <div class="card" id="gate">
+    <div class="row">
+      <label for="pw">Adgangskode</label>
+      <input id="pw" type="password" placeholder="Indtast adgangskode" autocomplete="current-password" />
+    </div>
+    <div class="inline">
+      <button id="unlock">Åbn</button>
+      <div class="muted">Hobby-niveau beskyttelse (client-side).</div>
+    </div>
+    <div id="pwErr" class="muted error" style="display:none; margin-top:8px;">Forkert adgangskode.</div>
+  </div>
+
+  <div id="app" style="display:none;">
+    <div class="card">
+      <div class="row">
+        <label for="vol">Gns. Vol% (fx 5,5 for 5,5%)</label>
+        <input id="vol" inputmode="decimal" value="5,5" />
+      </div>
+
+      <div class="row">
+        <label for="ath">Aktivitetstidspunkt (t)</label>
+        <input id="ath" inputmode="numeric" value="11" />
+      </div>
+
+      <div class="row">
+        <label for="atm">Aktivitetstidspunkt (m)</label>
+        <input id="atm" inputmode="numeric" value="30" />
+      </div>
+
+      <div class="row">
+        <label for="sleep">Antal sovetimer</label>
+        <input id="sleep" inputmode="decimal" value="10" />
+      </div>
+
+      <div class="row">
+        <label for="meat">Spist kød</label>
+        <input id="meat" inputmode="decimal" value="1" />
+      </div>
+
+      <div class="row">
+        <label for="bread">Spist brød</label>
+        <input id="bread" inputmode="decimal" value="5" />
+      </div>
+
+      <div class="row">
+        <label for="greens">Spist grønt</label>
+        <input id="greens" inputmode="decimal" value="7" />
+      </div>
+
+      <div class="row">
+        <label for="fruit">Spist frugt</label>
+        <input id="fruit" inputmode="decimal" value="10" />
+      </div>
+
+      <div class="row">
+        <label for="liquid">Spist flydende kost</label>
+        <input id="liquid" inputmode="decimal" value="5" />
+      </div>
+
+      <div class="row">
+        <label for="water">Drukket vand</label>
+        <input id="water" inputmode="decimal" value="3" />
+      </div>
+
+      <div class="inline" style="margin-top:12px;">
+        <button id="reset">Nulstil til standard</button>
+        <button id="lock">Lås</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div id="out" class="result">Resultat: —</div>
+      <div id="detail" class="muted" style="margin-top:6px;"></div>
+      <div id="err" class="muted error" style="margin-top:6px;"></div>
+
+      <details>
+        <summary>Vis mellemregninger</summary>
+        <div id="debug" class="muted" style="margin-top:10px; white-space:pre-wrap;"></div>
+      </details>
+
+      <details>
+        <summary>Avancerede konstanter (fra Excel-arket)</summary>
+        <div class="muted" style="margin-top:10px;">
+          Fast antal (B6): 5<br/>
+          Base vol (D6): 6%<br/>
+          Base time (F6): 9<br/>
+          Base sleep (I6): 7<br/>
+          Food weights (K6–O6): 1; 0,2; 0,15; 0,1; 0,2<br/>
+          Water weight (Q6): 1/3
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <script>
+    // Hobby passcode. Change this.
+    const EXPECTED_PASSCODE = "1234";
+    const STORAGE_KEY = "hobby_calc_unlocked";
+
+    function parseLocaleNumber(raw) {
+      const s = String(raw ?? "").trim()
+        .replace(/\s+/g, "")
+        .replace(",", ".");
+      if (s === "") return null;
+      const n = Number(s);
+      return Number.isFinite(n) ? n : null;
+    }
+
+    function roundHalfAwayFromZero(x) {
+      if (!Number.isFinite(x)) return NaN;
+      if (x >= 0) return Math.floor(x + 0.5);
+      return Math.ceil(x - 0.5);
+    }
+
+    function getInputs() {
+      // Gns. Vol%: accept either 5,5 (percent) or 0,055 (fraction)
+      const volRaw = parseLocaleNumber(document.getElementById("vol").value);
+      const ath = parseLocaleNumber(document.getElementById("ath").value);
+      const atm = parseLocaleNumber(document.getElementById("atm").value);
+      const sleep = parseLocaleNumber(document.getElementById("sleep").value);
+      const meat = parseLocaleNumber(document.getElementById("meat").value);
+      const bread = parseLocaleNumber(document.getElementById("bread").value);
+      const greens = parseLocaleNumber(document.getElementById("greens").value);
+      const fruit = parseLocaleNumber(document.getElementById("fruit").value);
+      const liquid = parseLocaleNumber(document.getElementById("liquid").value);
+      const water = parseLocaleNumber(document.getElementById("water").value);
+
+      if ([volRaw, ath, atm, sleep, meat, bread, greens, fruit, liquid, water].some(v => v === null)) {
+        return { error: "Udfyld alle felter med tal." };
+      }
+
+      const volFraction = (volRaw > 1) ? (volRaw / 100) : volRaw;
+      return { volFraction, ath, atm, sleep, meat, bread, greens, fruit, liquid, water };
+    }
+
+    function calculate(x) {
+      // Constants from the sheet
+      const B6 = 5;
+      const D6 = 0.06;
+      const F6 = 9;
+      const G6 = 0;
+      const I6 = 7;
+
+      const K6 = 1;
+      const L6 = 0.2;
+      const M6 = 0.15;
+      const N6 = 0.1;
+      const O6 = 0.2;
+
+      const Q6 = 1/3;
+
+      // Mirrors the Excel formulas exactly
+      const D7 = D6 / x.volFraction;
+
+      const F7 = x.ath - F6;
+      const F8 = F6 / 9;
+      const F9 = (F7 + F8) - 1;
+      const G7 = x.atm / 60;
+      const G8 = G6 / 60;
+      const G9 = G7 + G8;
+      const F10 = F9 + G9;
+
+      const B7 = B6 + F10;
+
+      const I7 = x.sleep - I6;
+      const I8 = I7 / 2;
+      const B8 = B7 + I8;
+
+      const K7 = x.meat * K6 - 1;
+      const L7 = x.bread * L6 - 1;
+      const M7 = x.greens * M6 - 1;
+      const N7 = x.fruit * N6 - 1;
+      const O7 = x.liquid * O6 - 1;
+      const K8 = K7 + L7 + M7 + N7 + O7;
+
+      const B9 = B8 + K8;
+
+      const Q7 = x.water * Q6 - 1;
+      const B10 = B9 + Q7;
+
+      const B11 = B10 * D7;
+
+      const result = roundHalfAwayFromZero(B11);
+
+      return { result, B11, B10, B9, B8, B7, D7, F10, I8, K8, Q7 };
+    }
+
+    function render() {
+      const errEl = document.getElementById("err");
+      const outEl = document.getElementById("out");
+      const detailEl = document.getElementById("detail");
+      const dbgEl = document.getElementById("debug");
+
+      errEl.textContent = "";
+      detailEl.textContent = "";
+
+      const inputs = getInputs();
+      if (inputs.error) {
+        outEl.textContent = "Resultat: —";
+        errEl.textContent = inputs.error;
+        dbgEl.textContent = "";
+        return;
+      }
+
+      if (inputs.volFraction <= 0) {
+        outEl.textContent = "Resultat: —";
+        errEl.textContent = "Gns. Vol% skal være større end 0.";
+        dbgEl.textContent = "";
+        return;
+      }
+
+      const r = calculate(inputs);
+
+      if (!Number.isFinite(r.result)) {
+        outEl.textContent = "Resultat: —";
+        errEl.textContent = "Kunne ikke beregne (tjek input).";
+        dbgEl.textContent = "";
+        return;
+      }
+
+      outEl.textContent = "Resultat (afrundet): " + String(r.result) + " genstande";
+      detailEl.textContent = "Uafrundet værdi (B11): " + (Math.round(r.B11 * 1000) / 1000).toString();
+
+      dbgEl.textContent =
+        "B7 (aktivitet): " + r.B7 + "\n" +
+        "I8 (søvn): " + r.I8 + "\n" +
+        "K8 (mad): " + r.K8 + "\n" +
+        "Q7 (vand): " + r.Q7 + "\n" +
+        "B10 (før vol%): " + r.B10 + "\n" +
+        "D7 (vol% faktor): " + r.D7 + "\n" +
+        "B11 (endelig): " + r.B11 + "\n";
+    }
+
+    function setUnlocked(unlocked) {
+      if (unlocked) localStorage.setItem(STORAGE_KEY, "1");
+      else localStorage.removeItem(STORAGE_KEY);
+
+      document.getElementById("gate").style.display = unlocked ? "none" : "block";
+      document.getElementById("app").style.display = unlocked ? "block" : "none";
+    }
+
+    function tryUnlock() {
+      const pw = document.getElementById("pw").value;
+      const ok = pw === EXPECTED_PASSCODE;
+      document.getElementById("pwErr").style.display = ok ? "none" : "block";
+      if (ok) {
+        setUnlocked(true);
+        render();
+      }
+    }
+
+    document.getElementById("unlock").addEventListener("click", tryUnlock);
+    document.getElementById("pw").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") tryUnlock();
+    });
+
+    document.getElementById("lock").addEventListener("click", () => setUnlocked(false));
+
+    document.getElementById("reset").addEventListener("click", () => {
+      document.getElementById("vol").value = "5,5";
+      document.getElementById("ath").value = "11";
+      document.getElementById("atm").value = "30";
+      document.getElementById("sleep").value = "10";
+      document.getElementById("meat").value = "1";
+      document.getElementById("bread").value = "5";
+      document.getElementById("greens").value = "7";
+      document.getElementById("fruit").value = "10";
+      document.getElementById("liquid").value = "5";
+      document.getElementById("water").value = "3";
+      render();
+    });
+
+    // Recalc on any input change
+    const ids = ["vol","ath","atm","sleep","meat","bread","greens","fruit","liquid","water"];
+    ids.forEach(id => {
+      document.getElementById(id).addEventListener("input", render);
+    });
+
+    // Auto-unlock if previously unlocked
+    setUnlocked(localStorage.getItem(STORAGE_KEY) === "1");
+    if (localStorage.getItem(STORAGE_KEY) === "1") render();
+  </script>
+</body>
+</html>
