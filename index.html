@@ -111,7 +111,7 @@
 
       <div class="row">
         <label for="liquid" title="Indsæt hvor mange stykker flydende kost du har spist">Spist flydende kost</label>
-        <input id="liquid" data-help="Indsæt hvor mange stykker flydende kost du har spist" inputmode="decimal" value="0" />
+        <input id="liquid" data-help="Indsæt hvor mange stykker flydende kost du har spist (200g)" inputmode="decimal" value="0" />
       </div>
 
       <div class="row">
@@ -362,7 +362,7 @@
       const labelTxt = label ? label.textContent.trim() : el.id;
       const helpTxt = el.getAttribute("data-help") || (label ? label.getAttribute("title") : "") || "";
       if (helpTxt) {
-        helpPanel.innerHTML = '<span class="helpKey">' + labelTxt + ':</span> ' + helpTxt;
+        helpPanel.textContent = helpTxt;
       }
     }
     ids.forEach(id => {
