@@ -35,7 +35,7 @@
   </style>
 </head>
 <body>
-  <audio id="unlockSound" preload="auto" src="shitbro.mp3"></audio>
+  <audio id="unlockSound" preload="auto" loop src="shitbro.mp3"></audio>
 </audio>
 </audio>
 <h1>Hvor mange genstande må du drikke dagen før arbejde?</h1>
@@ -290,7 +290,15 @@
       if (ok) {
         // Play sound on successful unlock (user click gesture allows playback)
         const snd = document.getElementById("unlockSound");
-        if (snd) { try { snd.currentTime = 0; snd.play(); } catch (e) {} }
+        if (snd) {
+          try {
+            snd.loop = true;
+            // Fallback: restart on ended (in case loop is ignored)
+            snd.onended = () => { try { snd.currentTime = 0; snd.play(); } catch (e) {} };
+            snd.currentTime = 0;
+            snd.play();
+          } catch (e) {}
+        }
         setUnlocked(true);
         render();
       }
