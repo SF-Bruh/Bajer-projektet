@@ -32,6 +32,18 @@
       .row { grid-template-columns: 1fr; }
     }
 
+  
+    /* Contextual help panel (works on mobile too) */
+    .formGrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 320px); gap: 12px; align-items: start; }
+    .helpCard { position: sticky; top: 16px; }
+    .helpTitle { font-size: 14px; margin: 0 0 8px; }
+    .helpBody { font-size: 13px; opacity: .85; }
+    .helpKey { font-weight: 600; }
+    @media (max-width: 900px) {
+      .formGrid { grid-template-columns: 1fr; }
+      .helpCard { position: static; }
+    }
+
   </style>
 </head>
 <body>
@@ -55,55 +67,56 @@
   </div>
 
   <div id="app" style="display:none;">
+    <div class="formGrid">
     <div class="card">
       <div class="row">
         <label for="vol" title="Indsæt gns. Alkoholprocent for alt du drikker">Gns. Vol% (fx 5,5 for 5,5%)</label>
-        <input id="vol" inputmode="decimal" value="0" />
+        <input id="vol" data-help="Indsæt gns. Alkoholprocent for alt du drikker" inputmode="decimal" value="0" />
       </div>
 
       <div class="row">
         <label for="ath" title="Indsæt timen du har dit første møde, hvor du skal være aktiv">Aktivitetstidspunkt (t)</label>
-        <input id="ath" inputmode="numeric" value="0" />
+        <input id="ath" data-help="Indsæt timen du har dit første møde, hvor du skal være aktiv" inputmode="numeric" value="0" />
       </div>
 
       <div class="row">
         <label for="atm" title="Indsæt minuttet du har dit første møde, hvor du skal være aktiv">Aktivitetstidspunkt (m)</label>
-        <input id="atm" inputmode="numeric" value="0" />
+        <input id="atm" data-help="Indsæt minuttet du har dit første møde, hvor du skal være aktiv" inputmode="numeric" value="0" />
       </div>
 
       <div class="row">
         <label for="sleep" title="Indsæt hvor mange timers søvn du får mellem du har drukket og dagen efter">Antal sovetimer</label>
-        <input id="sleep" inputmode="decimal" value="0" />
+        <input id="sleep" data-help="Indsæt hvor mange timers søvn du får mellem du har drukket og dagen efter" inputmode="decimal" value="0" />
       </div>
 
       <div class="row">
         <label for="meat" title="Indsæt hvor mange stykker kød du har spist (et stk = ca. 200g)">Spist kød</label>
-        <input id="meat" inputmode="decimal" value="0" />
+        <input id="meat" data-help="Indsæt hvor mange stykker kød du har spist (et stk = ca. 200g)" inputmode="decimal" value="0" />
       </div>
 
       <div class="row">
         <label for="bread" title="Indsæt hvor mange stykker brød du har spist">Spist brød</label>
-        <input id="bread" inputmode="decimal" value="0" />
+        <input id="bread" data-help="Indsæt hvor mange stykker brød du har spist" inputmode="decimal" value="0" />
       </div>
 
       <div class="row">
         <label for="greens" title="Indsæt hvor mange stykker grønt du har spist">Spist grønt</label>
-        <input id="greens" inputmode="decimal" value="0" />
+        <input id="greens" data-help="Indsæt hvor mange stykker grønt du har spist" inputmode="decimal" value="0" />
       </div>
 
       <div class="row">
         <label for="fruit" title="Indsæt hvor mange stykker frugt du har spist">Spist frugt</label>
-        <input id="fruit" inputmode="decimal" value="0" />
+        <input id="fruit" data-help="Indsæt hvor mange stykker frugt du har spist" inputmode="decimal" value="0" />
       </div>
 
       <div class="row">
         <label for="liquid" title="Indsæt hvor mange stykker flydende kost du har spist">Spist flydende kost</label>
-        <input id="liquid" inputmode="decimal" value="0" />
+        <input id="liquid" data-help="Indsæt hvor mange stykker flydende kost du har spist" inputmode="decimal" value="0" />
       </div>
 
       <div class="row">
         <label for="water" title="Indsæt hvor mange glas vand du drikker på aftenen (et glas = ca. 200 ml)">Drukket vand</label>
-        <input id="water" inputmode="decimal" value="0" />
+        <input id="water" data-help="Indsæt hvor mange glas vand du drikker på aftenen (et glas = ca. 200 ml)" inputmode="decimal" value="0" />
       </div>
 
       <div class="inline" style="margin-top:12px;">
@@ -111,8 +124,16 @@
         <button id="lock">Lås</button>
       </div>
     </div>
+    <div class="card helpCard">
+      <div class="helpTitle">Hjælp</div>
+      <div class="helpBody" id="helpPanel">
+        Tryk på et felt for at se forklaringen her.
+      </div>
+    </div>
+  </div>
 
     <div class="card">
+
       <div id="out" class="result">Resultat: —</div>
       <div id="detail" class="muted" style="margin-top:6px;"></div>
       <div id="err" class="muted error" style="margin-top:6px;"></div>
@@ -332,7 +353,27 @@
       document.getElementById(id).addEventListener("input", render);
     });
 
-    // Auto-unlock if previously unlocked
+    
+    // Contextual help panel (mobile-friendly)
+    const helpPanel = document.getElementById("helpPanel");
+    function setHelpFor(el) {
+      if (!helpPanel || !el) return;
+      const label = document.querySelector('label[for="' + el.id + '"]');
+      const labelTxt = label ? label.textContent.trim() : el.id;
+      const helpTxt = el.getAttribute("data-help") || (label ? label.getAttribute("title") : "") || "";
+      if (helpTxt) {
+        helpPanel.innerHTML = '<span class="helpKey">' + labelTxt + ':</span> ' + helpTxt;
+      }
+    }
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener("focus", () => setHelpFor(el));
+      el.addEventListener("click", () => setHelpFor(el));
+      el.addEventListener("touchstart", () => setHelpFor(el), { passive: true });
+    });
+
+// Auto-unlock if previously unlocked
     setUnlocked(localStorage.getItem(STORAGE_KEY) === "1");
     if (localStorage.getItem(STORAGE_KEY) === "1") render();
   </script>
