@@ -7,7 +7,6 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Bajere" />
   <meta name="theme-color" content="#0a0a0f" />
-  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%230a0a0f' width='100' height='100' rx='20'/><text y='70' x='50' text-anchor='middle' font-size='60'>🍺</text></svg>" />
   <title>Hvor mange genstande må du drikke?</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,8 +18,6 @@
       --gold-dark: #b8860b;
       --bg-primary: #0a0a0f;
       --bg-secondary: #12121a;
-      --bg-card: rgba(255, 255, 255, 0.03);
-      --bg-card-hover: rgba(255, 255, 255, 0.06);
       --text-primary: #ffffff;
       --text-secondary: rgba(255, 255, 255, 0.7);
       --text-muted: rgba(255, 255, 255, 0.5);
@@ -37,21 +34,18 @@
       box-sizing: border-box;
     }
 
-    html {
-      scroll-behavior: smooth;
+    html, body {
+      height: 100%;
+      overflow: hidden;
     }
 
     body {
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
       background: var(--bg-primary);
       color: var(--text-primary);
-      min-height: 100vh;
-      min-height: -webkit-fill-available;
-      overflow-x: hidden;
       line-height: 1.6;
       -webkit-font-smoothing: antialiased;
       -webkit-tap-highlight-color: transparent;
-      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
     }
 
     /* Animated background */
@@ -108,12 +102,9 @@
     .particle:nth-child(1) { left: 10%; animation-delay: 0s; }
     .particle:nth-child(2) { left: 20%; animation-delay: 2s; }
     .particle:nth-child(3) { left: 30%; animation-delay: 4s; }
-    .particle:nth-child(4) { left: 40%; animation-delay: 6s; }
-    .particle:nth-child(5) { left: 50%; animation-delay: 8s; }
-    .particle:nth-child(6) { left: 60%; animation-delay: 10s; }
-    .particle:nth-child(7) { left: 70%; animation-delay: 1s; }
-    .particle:nth-child(8) { left: 80%; animation-delay: 3s; }
-    .particle:nth-child(9) { left: 90%; animation-delay: 5s; }
+    .particle:nth-child(4) { left: 50%; animation-delay: 8s; }
+    .particle:nth-child(5) { left: 70%; animation-delay: 1s; }
+    .particle:nth-child(6) { left: 90%; animation-delay: 5s; }
 
     @keyframes particleFloat {
       0% { transform: translateY(100vh) scale(0); opacity: 0; }
@@ -122,48 +113,83 @@
       100% { transform: translateY(-100vh) scale(1); opacity: 0; }
     }
 
-    /* Container */
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 40px 24px;
-    }
-
-    /* Gate / Login Screen */
-    #gate {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 24px;
-    }
-
-    .gate-card {
-      background: var(--glass-bg);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid var(--glass-border);
-      border-radius: 24px;
-      padding: 60px 48px;
-      text-align: center;
-      max-width: 440px;
+    /* Screen container */
+    .screen-container {
+      position: fixed;
+      top: 0;
+      left: 0;
       width: 100%;
-      box-shadow: var(--shadow-gold), 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-      animation: fadeInUp 0.8s ease-out;
+      height: 100%;
+      overflow: hidden;
     }
 
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+    /* Individual screens */
+    .screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      padding-top: calc(24px + env(safe-area-inset-top));
+      padding-bottom: calc(24px + env(safe-area-inset-bottom));
+      opacity: 0;
+      transform: translateX(100%);
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
     }
 
-    .gate-logo {
+    .screen.active {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: auto;
+    }
+
+    .screen.prev {
+      transform: translateX(-100%);
+    }
+
+    /* Screen content wrapper */
+    .screen-content {
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    /* Progress bar */
+    .progress-bar {
+      position: fixed;
+      top: env(safe-area-inset-top);
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.1);
+      z-index: 100;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold), var(--gold-light));
+      transition: width 0.5s ease;
+      box-shadow: 0 0 10px var(--gold);
+    }
+
+    /* Step indicator */
+    .step-indicator {
+      position: fixed;
+      top: calc(20px + env(safe-area-inset-top));
+      right: 24px;
+      font-size: 14px;
+      color: var(--text-muted);
+      z-index: 100;
+    }
+
+    /* Logo/Icon */
+    .screen-icon {
       width: 80px;
       height: 80px;
       background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
@@ -172,7 +198,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 36px;
+      font-size: 40px;
       box-shadow: 0 10px 40px rgba(212, 175, 55, 0.3);
       animation: pulse 3s ease-in-out infinite;
     }
@@ -182,9 +208,10 @@
       50% { box-shadow: 0 10px 60px rgba(212, 175, 55, 0.5); }
     }
 
-    .gate-title {
+    /* Titles */
+    .screen-title {
       font-family: 'Playfair Display', serif;
-      font-size: 28px;
+      font-size: 32px;
       font-weight: 600;
       margin-bottom: 12px;
       background: linear-gradient(135deg, var(--text-primary) 0%, var(--gold-light) 100%);
@@ -193,86 +220,207 @@
       background-clip: text;
     }
 
-    .gate-subtitle {
+    .screen-subtitle {
       color: var(--text-secondary);
-      font-size: 15px;
-      margin-bottom: 36px;
-      font-weight: 300;
+      font-size: 16px;
+      margin-bottom: 40px;
+      line-height: 1.5;
     }
 
-    .input-group {
-      position: relative;
+    /* Input styling */
+    .input-wrapper {
       margin-bottom: 24px;
     }
 
-    .input-group input {
+    .input-label {
+      display: block;
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .input-field {
       width: 100%;
-      padding: 18px 24px;
-      font-size: 16px;
+      padding: 20px 24px;
+      font-size: 24px;
       font-family: 'Inter', sans-serif;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--border);
-      border-radius: 16px;
+      font-weight: 500;
+      background: var(--glass-bg);
+      border: 2px solid var(--border);
+      border-radius: 20px;
       color: var(--text-primary);
+      text-align: center;
+      outline: none;
       transition: all 0.3s ease;
+    }
+
+    .input-field:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.15);
+    }
+
+    .input-field::placeholder {
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .input-hint {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 12px;
+    }
+
+    /* Multi-input row */
+    .input-row {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .input-row .input-wrapper {
+      flex: 1;
+      margin-bottom: 0;
+    }
+
+    .input-row .input-field {
+      font-size: 20px;
+      padding: 18px 16px;
+    }
+
+    /* Food grid */
+    .food-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .food-item {
+      background: var(--glass-bg);
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      padding: 16px 12px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .food-item:focus-within {
+      border-color: var(--gold);
+    }
+
+    .food-item label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .food-item input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      font-size: 24px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      color: var(--text-primary);
+      text-align: center;
       outline: none;
     }
 
-    .input-group input:focus {
-      border-color: var(--gold);
-      box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.1);
-      background: rgba(255, 255, 255, 0.08);
-    }
-
-    .input-group input::placeholder {
-      color: var(--text-muted);
+    /* Buttons */
+    .btn {
+      padding: 20px 40px;
+      font-size: 17px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: none;
+      width: 100%;
     }
 
     .btn-primary {
-      width: 100%;
-      padding: 18px 32px;
-      font-size: 16px;
-      font-weight: 600;
-      font-family: 'Inter', sans-serif;
       background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
-      border: none;
-      border-radius: 16px;
       color: var(--bg-primary);
-      cursor: pointer;
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .btn-primary::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-      transition: left 0.5s ease;
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 40px rgba(212, 175, 55, 0.4);
-    }
-
-    .btn-primary:hover::before {
-      left: 100%;
+      box-shadow: 0 4px 20px rgba(212, 175, 55, 0.3);
     }
 
     .btn-primary:active {
-      transform: translateY(0);
+      transform: scale(0.98);
     }
 
+    .btn-secondary {
+      background: transparent;
+      border: 2px solid var(--border);
+      color: var(--text-secondary);
+    }
+
+    .btn-secondary:active {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 32px;
+    }
+
+    .btn-row .btn {
+      flex: 1;
+    }
+
+    .btn-back {
+      flex: 0.4 !important;
+      padding: 20px 24px;
+    }
+
+    /* Result screen */
+    .result-number {
+      font-family: 'Playfair Display', serif;
+      font-size: 96px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+      margin-bottom: 8px;
+      animation: resultPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes resultPop {
+      0% { transform: scale(0.5); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .result-label {
+      font-size: 24px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .result-detail {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 40px;
+    }
+
+    /* Error message */
     .error-msg {
       color: #ff6b6b;
       font-size: 14px;
-      margin-top: 16px;
+      margin-top: 12px;
       display: none;
+    }
+
+    .error-msg.show {
+      display: block;
       animation: shake 0.5s ease;
     }
 
@@ -282,548 +430,89 @@
       40%, 80% { transform: translateX(5px); }
     }
 
-    /* Main App */
-    #app {
-      display: none;
-      animation: fadeIn 0.6s ease-out;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    /* Header */
-    .header {
-      text-align: center;
-      margin-bottom: 48px;
-      padding-top: 20px;
-    }
-
-    .header h1 {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(32px, 5vw, 48px);
-      font-weight: 600;
-      margin-bottom: 12px;
-      background: linear-gradient(135deg, var(--text-primary) 0%, var(--gold-light) 50%, var(--text-primary) 100%);
-      background-size: 200% auto;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      animation: shimmer 3s linear infinite;
-    }
-
-    @keyframes shimmer {
-      to { background-position: 200% center; }
-    }
-
-    .header p {
-      color: var(--text-secondary);
-      font-size: 16px;
-      font-weight: 300;
-    }
-
-    /* Cards */
-    .card {
+    /* Lock button */
+    .lock-btn {
+      position: fixed;
+      bottom: calc(24px + env(safe-area-inset-bottom));
+      right: 24px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
       background: var(--glass-bg);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid var(--glass-border);
-      border-radius: 24px;
-      padding: 32px;
-      margin-bottom: 24px;
-      transition: all 0.4s ease;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--gold), transparent);
-      opacity: 0;
-      transition: opacity 0.4s ease;
-    }
-
-    .card:hover {
-      border-color: var(--border-hover);
-      transform: translateY(-4px);
-      box-shadow: var(--shadow-gold);
-    }
-
-    .card:hover::before {
-      opacity: 1;
-    }
-
-    .card-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 22px;
-      font-weight: 500;
-      margin-bottom: 24px;
-      color: var(--gold-light);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .card-title::before {
-      content: '';
-      width: 4px;
-      height: 24px;
-      background: linear-gradient(180deg, var(--gold), var(--gold-dark));
-      border-radius: 2px;
-    }
-
-    /* Form Layout */
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr 300px;
-      gap: 24px;
-    }
-
-    @media (max-width: 768px) {
-      .form-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .form-section {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    /* Form Row */
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 140px;
-      gap: 16px;
-      align-items: center;
-      padding: 12px 16px;
-      background: rgba(255, 255, 255, 0.02);
-      border-radius: 12px;
-      transition: all 0.3s ease;
-    }
-
-    .form-row:hover {
-      background: rgba(255, 255, 255, 0.05);
-    }
-
-    .form-row label {
-      font-size: 14px;
-      color: var(--text-secondary);
-      font-weight: 400;
-      transition: color 0.3s ease;
-    }
-
-    .form-row:hover label {
-      color: var(--text-primary);
-    }
-
-    .form-row input {
-      width: 100%;
-      padding: 14px 18px;
-      font-size: 16px;
-      font-family: 'Inter', sans-serif;
-      background: rgba(255, 255, 255, 0.05);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      color: var(--text-primary);
-      transition: all 0.3s ease;
-      outline: none;
-      text-align: right;
-    }
-
-    .form-row input:focus {
-      border-color: var(--gold);
-      box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.1);
-      background: rgba(255, 255, 255, 0.08);
-    }
-
-    @media (max-width: 500px) {
-      .form-row {
-        grid-template-columns: 1fr;
-        gap: 10px;
-      }
-      .form-row input {
-        text-align: center;
-        font-size: 18px;
-        padding: 18px;
-      }
-    }
-
-    /* Help Panel */
-    .help-panel {
-      background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(212, 175, 55, 0.05) 100%);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 24px;
-      height: fit-content;
-      position: sticky;
-      top: 24px;
-    }
-
-    .help-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 18px;
-      font-weight: 500;
-      color: var(--gold-light);
-      margin-bottom: 16px;
+      color: var(--text-muted);
       display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .help-body {
-      font-size: 14px;
-      color: var(--text-secondary);
-      line-height: 1.7;
-      min-height: 60px;
-    }
-
-    /* Buttons */
-    .btn-group {
-      display: flex;
-      gap: 12px;
-      margin-top: 24px;
-      flex-wrap: wrap;
-    }
-
-    .btn-secondary {
-      padding: 14px 24px;
-      font-size: 14px;
-      font-weight: 500;
-      font-family: 'Inter', sans-serif;
-      background: transparent;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      color: var(--text-secondary);
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .btn-secondary:hover {
-      border-color: var(--gold);
-      color: var(--gold);
-      background: rgba(212, 175, 55, 0.1);
-    }
-
-    /* Result Card */
-    .result-card {
-      background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(212, 175, 55, 0.05) 100%);
-      border: 1px solid var(--gold);
-      position: relative;
-    }
-
-    .result-card::after {
-      content: '';
-      position: absolute;
-      inset: -1px;
-      border-radius: 24px;
-      padding: 1px;
-      background: linear-gradient(135deg, var(--gold), transparent, var(--gold));
-      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-      -webkit-mask-composite: xor;
-      mask-composite: exclude;
-      pointer-events: none;
-      opacity: 0.5;
-    }
-
-    .result-main {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(28px, 4vw, 36px);
-      font-weight: 600;
-      text-align: center;
-      margin-bottom: 8px;
-      background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .result-detail {
-      text-align: center;
-      color: var(--text-secondary);
-      font-size: 14px;
-      margin-bottom: 24px;
-    }
-
-    .result-error {
-      text-align: center;
-      color: #ff6b6b;
-      font-size: 14px;
-      margin-top: 12px;
-    }
-
-    /* Accordion / Details */
-    details {
-      margin-top: 20px;
-      border-top: 1px solid var(--glass-border);
-      padding-top: 16px;
-    }
-
-    summary {
-      cursor: pointer;
-      color: var(--text-secondary);
-      font-size: 14px;
-      font-weight: 500;
-      padding: 8px 0;
-      transition: color 0.3s ease;
-      list-style: none;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    summary::-webkit-details-marker {
-      display: none;
-    }
-
-    summary::before {
-      content: '+';
-      display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 20px;
-      height: 20px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: 14px;
+      cursor: pointer;
       transition: all 0.3s ease;
+      z-index: 100;
     }
 
-    details[open] summary::before {
-      content: '-';
-      background: var(--gold);
+    .lock-btn:active {
       border-color: var(--gold);
-      color: var(--bg-primary);
-    }
-
-    summary:hover {
       color: var(--gold);
     }
 
-    .debug-content {
-      margin-top: 16px;
-      padding: 16px;
-      background: rgba(0, 0, 0, 0.3);
-      border-radius: 12px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 13px;
+    /* Restart button on result */
+    .restart-link {
       color: var(--text-muted);
-      white-space: pre-wrap;
-      line-height: 1.8;
+      font-size: 14px;
+      text-decoration: underline;
+      cursor: pointer;
+      margin-top: 16px;
+      display: inline-block;
     }
 
-    /* Audio element hidden */
+    /* Audio hidden */
     audio {
       display: none;
     }
 
-    /* Responsive - iPhone optimized */
-    @media (max-width: 640px) {
-      .container {
-        padding: 20px 16px;
-        padding-bottom: calc(20px + env(safe-area-inset-bottom));
+    /* Small adjustments for very small screens */
+    @media (max-height: 667px) {
+      .screen-icon {
+        width: 64px;
+        height: 64px;
+        font-size: 32px;
+        margin-bottom: 24px;
       }
-      .card {
-        padding: 24px 20px;
-        border-radius: 20px;
-      }
-      .card:hover {
-        transform: none;
-      }
-      .gate-card {
-        padding: 48px 28px;
-        border-radius: 28px;
-        margin: 16px;
-        max-width: none;
-        width: calc(100% - 32px);
-      }
-      .gate-logo {
-        width: 72px;
-        height: 72px;
-      }
-      .gate-title {
+      .screen-title {
         font-size: 26px;
       }
-      .header {
+      .screen-subtitle {
+        font-size: 14px;
         margin-bottom: 28px;
-        padding-top: 12px;
       }
-      .header h1 {
-        font-size: 28px;
-        line-height: 1.2;
-      }
-      .header p {
-        font-size: 15px;
-        line-height: 1.5;
-        padding: 0 8px;
-      }
-      .card-title {
+      .input-field {
+        padding: 16px 20px;
         font-size: 20px;
-        margin-bottom: 20px;
       }
-      .form-row {
-        padding: 14px 16px;
-        border-radius: 14px;
-        gap: 12px;
+      .btn {
+        padding: 16px 32px;
       }
-      .form-row label {
-        font-size: 15px;
-      }
-      .form-row input {
-        padding: 16px 18px;
-        font-size: 17px;
-        border-radius: 14px;
-        /* Prevent iOS zoom on focus */
-        font-size: 16px;
-      }
-      .input-group input {
-        padding: 20px 24px;
-        font-size: 17px;
-        border-radius: 18px;
-      }
-      .btn-primary {
-        padding: 20px 32px;
-        font-size: 17px;
-        border-radius: 18px;
-      }
-      .btn-secondary {
-        padding: 16px 24px;
-        font-size: 15px;
-        border-radius: 14px;
-        flex: 1;
-        text-align: center;
-      }
-      .btn-group {
-        margin-top: 20px;
-      }
-      .help-panel {
-        display: none;
-      }
-      .form-grid {
-        grid-template-columns: 1fr;
-      }
-      .result-main {
-        font-size: 32px;
-      }
-      .result-card {
-        text-align: center;
-        padding: 32px 24px;
-      }
-      details {
-        text-align: left;
-      }
-      summary {
-        font-size: 15px;
-        padding: 12px 0;
+      .result-number {
+        font-size: 72px;
       }
     }
 
-    /* Extra small phones */
-    @media (max-width: 380px) {
-      .gate-card {
-        padding: 36px 20px;
-      }
-      .header h1 {
-        font-size: 24px;
-      }
-      .form-row {
-        padding: 12px 14px;
-      }
-    }
-
-    /* Touch device optimizations */
-    @media (hover: none) and (pointer: coarse) {
-      .card:hover {
-        transform: none;
-        box-shadow: none;
-      }
-      .card:hover::before {
-        opacity: 0;
-      }
-      .btn-primary:hover {
-        transform: none;
-      }
-      .btn-secondary:hover {
-        background: transparent;
-        border-color: var(--border);
-        color: var(--text-secondary);
-      }
-      .form-row:hover {
-        background: rgba(255, 255, 255, 0.02);
-      }
-      .form-row:hover label {
-        color: var(--text-secondary);
-      }
-      /* Active states for touch */
-      .btn-primary:active {
-        transform: scale(0.98);
-        opacity: 0.9;
-      }
-      .btn-secondary:active {
-        background: rgba(212, 175, 55, 0.1);
-        border-color: var(--gold);
-        color: var(--gold);
-      }
-      .form-row:active {
-        background: rgba(255, 255, 255, 0.05);
-      }
-    }
-
-    /* Landscape mode on phones */
-    @media (max-height: 500px) and (orientation: landscape) {
-      #gate {
-        padding: 16px;
-        min-height: auto;
-      }
-      .gate-card {
-        padding: 24px 32px;
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 16px;
-      }
-      .gate-logo {
+    @media (max-height: 568px) {
+      .screen-icon {
         width: 56px;
         height: 56px;
-      }
-      .gate-title {
-        font-size: 22px;
-      }
-      .gate-subtitle {
+        font-size: 28px;
         margin-bottom: 16px;
       }
-    }
-
-    /* Custom scrollbar */
-    ::-webkit-scrollbar {
-      width: 8px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: var(--bg-primary);
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: var(--border);
-      border-radius: 4px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background: var(--gold);
-    }
-
-    /* Selection */
-    ::selection {
-      background: rgba(212, 175, 55, 0.3);
-      color: var(--text-primary);
+      .screen-title {
+        font-size: 22px;
+      }
+      .screen-subtitle {
+        font-size: 13px;
+        margin-bottom: 20px;
+      }
+      .result-number {
+        font-size: 56px;
+      }
     }
   </style>
 </head>
@@ -836,142 +525,176 @@
     <div class="particle"></div>
     <div class="particle"></div>
     <div class="particle"></div>
-    <div class="particle"></div>
-    <div class="particle"></div>
-    <div class="particle"></div>
   </div>
 
   <audio id="unlockSound" src="shitbro.mp3" preload="auto"></audio>
 
-  <!-- Gate / Login -->
-  <div id="gate">
-    <div class="gate-card">
-      <div class="gate-logo">
-        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-          <path d="M2 17l10 5 10-5"/>
-          <path d="M2 12l10 5 10-5"/>
-        </svg>
-      </div>
-      <h2 class="gate-title">Dav Fyr</h2>
-      <p class="gate-subtitle">Indtast din adgangskode for at fortsætte</p>
-      <div class="input-group">
-        <input type="password" id="pw" placeholder="Adgangskode" autocomplete="off" />
-      </div>
-      <button class="btn-primary" id="unlock">Lås op</button>
-      <p class="error-msg" id="pwErr">Forkert adgangskode. Prøv igen.</p>
-    </div>
+  <!-- Progress bar (hidden on login) -->
+  <div class="progress-bar" id="progressBar" style="display: none;">
+    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
   </div>
 
-  <!-- Main Application -->
-  <div id="app">
-    <div class="container">
-      <header class="header">
-        <h1>Genstands&shy;beregner</h1>
-        <p>Indtast dine data og find ud af, hvor mange bajere du kan drikke, inden du skal møde ind på kontoret i morgen.</p>
-      </header>
+  <!-- Step indicator (hidden on login) -->
+  <div class="step-indicator" id="stepIndicator" style="display: none;">
+    <span id="currentStep">1</span> / <span id="totalSteps">6</span>
+  </div>
 
-      <div class="card">
-        <h2 class="card-title">Indtast dine oplysninger</h2>
-        <div class="form-grid">
-          <div class="form-section">
-            <div class="form-row">
-              <label for="vol">Gennemsnitlig Vol%</label>
-              <input id="vol" data-help="Indtast den gennemsnitlige alkoholprocent for dine drikkevarer (f.eks. 5.5 for øl)" inputmode="decimal" value="0" />
-            </div>
-            <div class="form-row">
-              <label for="ath">Aktivitetstidspunkt (time)</label>
-              <input id="ath" data-help="Indtast timen hvor du har dit første møde/aktivitet næste dag (f.eks. 9 for kl. 09:00)" inputmode="numeric" value="0" />
-            </div>
-            <div class="form-row">
-              <label for="atm">Aktivitetstidspunkt (minut)</label>
-              <input id="atm" data-help="Indtast minuttet for dit første møde næste dag (f.eks. 30 for kl. 09:30)" inputmode="numeric" value="0" />
-            </div>
-            <div class="form-row">
-              <label for="sleep">Antal sovetimer</label>
-              <input id="sleep" data-help="Indtast hvor mange timers søvn du forventer at få mellem festen og næste dag" inputmode="decimal" value="0" />
-            </div>
-            <div class="form-row">
-              <label for="meat">Spist kød (portioner)</label>
-              <input id="meat" data-help="Indtast antal portioner kød du har spist (1 portion = ca. 200g)" inputmode="decimal" value="0" />
-            </div>
-            <div class="form-row">
-              <label for="bread">Spist brød (stk)</label>
-              <input id="bread" data-help="Indtast antal stykker brød du har spist" inputmode="decimal" value="0" />
-            </div>
-            <div class="form-row">
-              <label for="greens">Spist grønt (portioner)</label>
-              <input id="greens" data-help="Indtast antal portioner grøntsager du har spist" inputmode="decimal" value="0" />
-            </div>
-            <div class="form-row">
-              <label for="fruit">Spist frugt (stk)</label>
-              <input id="fruit" data-help="Indtast antal stykker frugt du har spist" inputmode="decimal" value="0" />
-            </div>
-            <div class="form-row">
-              <label for="liquid">Flydende kost (portioner)</label>
-              <input id="liquid" data-help="Indtast antal portioner flydende kost du har indtaget (1 portion = ca. 200g)" inputmode="decimal" value="0" />
-            </div>
-            <div class="form-row">
-              <label for="water">Drukket vand (glas)</label>
-              <input id="water" data-help="Indtast antal glas vand du drikker i løbet af aftenen (1 glas = ca. 200ml)" inputmode="decimal" value="0" />
-            </div>
+  <!-- Lock button (hidden on login) -->
+  <button class="lock-btn" id="lockBtn" style="display: none;">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+    </svg>
+  </button>
 
-            <div class="btn-group">
-              <button class="btn-secondary" id="reset">Nulstil</button>
-              <button class="btn-secondary" id="lock">Lås</button>
-            </div>
-          </div>
+  <div class="screen-container">
 
-          <div class="help-panel">
-            <h3 class="help-title">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"/>
-                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                <line x1="12" y1="17" x2="12.01" y2="17"/>
-              </svg>
-              Hjælp
-            </h3>
-            <div class="help-body" id="helpPanel">
-              Klik på et felt for at se en detaljeret forklaring her.
-            </div>
-          </div>
+    <!-- Screen 0: Login -->
+    <div class="screen active" id="screen-login">
+      <div class="screen-content">
+        <div class="screen-icon">🍺</div>
+        <h1 class="screen-title">Dav Fyr</h1>
+        <p class="screen-subtitle">Indtast din adgangskode for at fortsætte</p>
+        <div class="input-wrapper">
+          <input type="password" class="input-field" id="pw" placeholder="••••••••" autocomplete="off" />
         </div>
-      </div>
-
-      <div class="card result-card">
-        <div class="result-main" id="out">Resultat: —</div>
-        <div class="result-detail" id="detail"></div>
-        <div class="result-error" id="err"></div>
-
-        <details>
-          <summary>Vis mellemregninger</summary>
-          <div class="debug-content" id="debug"></div>
-        </details>
-
-        <details>
-          <summary>Avancerede konstanter</summary>
-          <div class="debug-content">
-Fast antal (B6): 5
-Base vol (D6): 6%
-Base time (F6): 9
-Base sleep (I6): 7
-Food weights (K6–O6): 1; 0,2; 0,15; 0,1; 0,2
-Water weight (Q6): 1/3
-          </div>
-        </details>
+        <button class="btn btn-primary" id="unlockBtn">Lås op</button>
+        <p class="error-msg" id="pwErr">Forkert adgangskode. Prøv igen.</p>
       </div>
     </div>
+
+    <!-- Screen 1: Vol% -->
+    <div class="screen" id="screen-1">
+      <div class="screen-content">
+        <div class="screen-icon">🍻</div>
+        <h1 class="screen-title">Alkoholprocent</h1>
+        <p class="screen-subtitle">Hvad er den gennemsnitlige alkoholprocent på det du drikker?</p>
+        <div class="input-wrapper">
+          <input type="text" class="input-field" id="vol" inputmode="decimal" placeholder="5.0" value="" />
+          <p class="input-hint">F.eks. 4.6 for en klassisk pilsner</p>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="next-1">Næste</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 2: Activity time -->
+    <div class="screen" id="screen-2">
+      <div class="screen-content">
+        <div class="screen-icon">⏰</div>
+        <h1 class="screen-title">Mødetid</h1>
+        <p class="screen-subtitle">Hvornår skal du være klar i morgen?</p>
+        <div class="input-row">
+          <div class="input-wrapper">
+            <label class="input-label">Time</label>
+            <input type="text" class="input-field" id="ath" inputmode="numeric" placeholder="9" value="" />
+          </div>
+          <div class="input-wrapper">
+            <label class="input-label">Minut</label>
+            <input type="text" class="input-field" id="atm" inputmode="numeric" placeholder="0" value="" />
+          </div>
+        </div>
+        <p class="input-hint">Hvornår har du dit første møde eller aktivitet?</p>
+        <div class="btn-row">
+          <button class="btn btn-secondary btn-back" id="back-2">←</button>
+          <button class="btn btn-primary" id="next-2">Næste</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 3: Sleep -->
+    <div class="screen" id="screen-3">
+      <div class="screen-content">
+        <div class="screen-icon">😴</div>
+        <h1 class="screen-title">Søvn</h1>
+        <p class="screen-subtitle">Hvor mange timer regner du med at sove?</p>
+        <div class="input-wrapper">
+          <input type="text" class="input-field" id="sleep" inputmode="decimal" placeholder="7" value="" />
+          <p class="input-hint">Timer mellem du går i seng og står op</p>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-secondary btn-back" id="back-3">←</button>
+          <button class="btn btn-primary" id="next-3">Næste</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 4: Food -->
+    <div class="screen" id="screen-4">
+      <div class="screen-content">
+        <div class="screen-icon">🍖</div>
+        <h1 class="screen-title">Mad</h1>
+        <p class="screen-subtitle">Hvad har du spist i dag?</p>
+        <div class="food-grid">
+          <div class="food-item">
+            <label>Kød (portioner)</label>
+            <input type="text" id="meat" inputmode="decimal" placeholder="0" value="" />
+          </div>
+          <div class="food-item">
+            <label>Brød (stk)</label>
+            <input type="text" id="bread" inputmode="decimal" placeholder="0" value="" />
+          </div>
+          <div class="food-item">
+            <label>Grønt</label>
+            <input type="text" id="greens" inputmode="decimal" placeholder="0" value="" />
+          </div>
+          <div class="food-item">
+            <label>Frugt (stk)</label>
+            <input type="text" id="fruit" inputmode="decimal" placeholder="0" value="" />
+          </div>
+        </div>
+        <div class="input-wrapper">
+          <label class="input-label">Flydende kost (portioner)</label>
+          <input type="text" class="input-field" id="liquid" inputmode="decimal" placeholder="0" value="" style="font-size: 20px; padding: 16px;" />
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-secondary btn-back" id="back-4">←</button>
+          <button class="btn btn-primary" id="next-4">Næste</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 5: Water -->
+    <div class="screen" id="screen-5">
+      <div class="screen-content">
+        <div class="screen-icon">💧</div>
+        <h1 class="screen-title">Vand</h1>
+        <p class="screen-subtitle">Hvor mange glas vand drikker du i aften?</p>
+        <div class="input-wrapper">
+          <input type="text" class="input-field" id="water" inputmode="decimal" placeholder="0" value="" />
+          <p class="input-hint">Et glas = ca. 200 ml</p>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-secondary btn-back" id="back-5">←</button>
+          <button class="btn btn-primary" id="next-5">Beregn!</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 6: Result -->
+    <div class="screen" id="screen-result">
+      <div class="screen-content">
+        <div class="screen-icon">🎉</div>
+        <div class="result-number" id="resultNumber">0</div>
+        <div class="result-label">genstande</div>
+        <div class="result-detail" id="resultDetail">Uafrundet: 0</div>
+        <button class="btn btn-primary" id="restartBtn">Prøv igen</button>
+        <p class="restart-link" id="editBtn">Ret mine svar</p>
+      </div>
+    </div>
+
   </div>
 
   <script>
-    // Hobby passcode
     const EXPECTED_PASSCODE = "bajerforfandenda";
     const STORAGE_KEY = "hobby_calc_unlocked";
 
+    let currentScreen = 'login';
+    const totalSteps = 5;
+
     function parseLocaleNumber(raw) {
-      const s = String(raw ?? "").trim()
-        .replace(/\s+/g, "")
-        .replace(",", ".");
+      const s = String(raw ?? "").trim().replace(/\s+/g, "").replace(",", ".");
       if (s === "") return null;
       const n = Number(s);
       return Number.isFinite(n) ? n : null;
@@ -983,190 +706,201 @@ Water weight (Q6): 1/3
       return Math.ceil(x - 0.5);
     }
 
-    function getInputs() {
-      const volRaw = parseLocaleNumber(document.getElementById("vol").value);
-      const ath = parseLocaleNumber(document.getElementById("ath").value);
-      const atm = parseLocaleNumber(document.getElementById("atm").value);
-      const sleep = parseLocaleNumber(document.getElementById("sleep").value);
-      const meat = parseLocaleNumber(document.getElementById("meat").value);
-      const bread = parseLocaleNumber(document.getElementById("bread").value);
-      const greens = parseLocaleNumber(document.getElementById("greens").value);
-      const fruit = parseLocaleNumber(document.getElementById("fruit").value);
-      const liquid = parseLocaleNumber(document.getElementById("liquid").value);
-      const water = parseLocaleNumber(document.getElementById("water").value);
-
-      if ([volRaw, ath, atm, sleep, meat, bread, greens, fruit, liquid, water].some(v => v === null)) {
-        return { error: "Udfyld alle felter med tal." };
-      }
+    function calculate() {
+      const volRaw = parseLocaleNumber(document.getElementById("vol").value) || 0;
+      const ath = parseLocaleNumber(document.getElementById("ath").value) || 0;
+      const atm = parseLocaleNumber(document.getElementById("atm").value) || 0;
+      const sleep = parseLocaleNumber(document.getElementById("sleep").value) || 0;
+      const meat = parseLocaleNumber(document.getElementById("meat").value) || 0;
+      const bread = parseLocaleNumber(document.getElementById("bread").value) || 0;
+      const greens = parseLocaleNumber(document.getElementById("greens").value) || 0;
+      const fruit = parseLocaleNumber(document.getElementById("fruit").value) || 0;
+      const liquid = parseLocaleNumber(document.getElementById("liquid").value) || 0;
+      const water = parseLocaleNumber(document.getElementById("water").value) || 0;
 
       const volFraction = (volRaw > 1) ? (volRaw / 100) : volRaw;
-      return { volFraction, ath, atm, sleep, meat, bread, greens, fruit, liquid, water };
-    }
 
-    function calculate(x) {
-      // Constants from the sheet
-      const B6 = 5;
-      const D6 = 0.06;
-      const F6 = 9;
-      const G6 = 0;
-      const I6 = 7;
+      if (volFraction <= 0) {
+        return { result: 0, B11: 0 };
+      }
 
-      const K6 = 1;
-      const L6 = 0.2;
-      const M6 = 0.15;
-      const N6 = 0.1;
-      const O6 = 0.2;
+      const B6 = 5, D6 = 0.06, F6 = 9, G6 = 0, I6 = 7;
+      const K6 = 1, L6 = 0.2, M6 = 0.15, N6 = 0.1, O6 = 0.2, Q6 = 1/3;
 
-      const Q6 = 1/3;
-
-      // Mirrors the Excel formulas exactly
-      const D7 = D6 / x.volFraction;
-
-      const F7 = x.ath - F6;
+      const D7 = D6 / volFraction;
+      const F7 = ath - F6;
       const F8 = F6 / 9;
       const F9 = (F7 + F8) - 1;
-      const G7 = x.atm / 60;
+      const G7 = atm / 60;
       const G8 = G6 / 60;
       const G9 = G7 + G8;
       const F10 = F9 + G9;
-
       const B7 = B6 + F10;
-
-      const I7 = x.sleep - I6;
+      const I7 = sleep - I6;
       const I8 = I7 / 2;
       const B8 = B7 + I8;
-
-      const K7 = x.meat * K6 - 1;
-      const L7 = x.bread * L6 - 1;
-      const M7 = x.greens * M6 - 1;
-      const N7 = x.fruit * N6 - 1;
-      const O7 = x.liquid * O6 - 1;
+      const K7 = meat * K6 - 1;
+      const L7 = bread * L6 - 1;
+      const M7 = greens * M6 - 1;
+      const N7 = fruit * N6 - 1;
+      const O7 = liquid * O6 - 1;
       const K8 = K7 + L7 + M7 + N7 + O7;
-
       const B9 = B8 + K8;
-
-      const Q7 = x.water * Q6 - 1;
+      const Q7 = water * Q6 - 1;
       const B10 = B9 + Q7;
-
       const B11 = B10 * D7;
-
       const result = roundHalfAwayFromZero(B11);
 
-      return { result, B11, B10, B9, B8, B7, D7, F10, I8, K8, Q7 };
+      return { result, B11 };
     }
 
-    function render() {
-      const errEl = document.getElementById("err");
-      const outEl = document.getElementById("out");
-      const detailEl = document.getElementById("detail");
-      const dbgEl = document.getElementById("debug");
+    function showScreen(screenId, direction = 'next') {
+      const currentEl = document.querySelector('.screen.active');
+      const nextEl = document.getElementById('screen-' + screenId);
 
-      errEl.textContent = "";
-      detailEl.textContent = "";
-
-      const inputs = getInputs();
-      if (inputs.error) {
-        outEl.textContent = "Resultat: —";
-        errEl.textContent = inputs.error;
-        dbgEl.textContent = "";
-        return;
+      if (currentEl) {
+        currentEl.classList.remove('active');
+        currentEl.classList.add(direction === 'next' ? 'prev' : '');
+        setTimeout(() => {
+          currentEl.classList.remove('prev');
+        }, 500);
       }
 
-      if (inputs.volFraction <= 0) {
-        outEl.textContent = "Resultat: —";
-        errEl.textContent = "Gns. Vol% skal være større end 0.";
-        dbgEl.textContent = "";
-        return;
+      if (direction === 'back') {
+        nextEl.style.transform = 'translateX(-100%)';
+        setTimeout(() => {
+          nextEl.classList.add('active');
+          nextEl.style.transform = '';
+        }, 10);
+      } else {
+        nextEl.classList.add('active');
       }
 
-      const r = calculate(inputs);
+      currentScreen = screenId;
+      updateProgress();
+    }
 
-      if (!Number.isFinite(r.result)) {
-        outEl.textContent = "Resultat: —";
-        errEl.textContent = "Kunne ikke beregne (tjek input).";
-        dbgEl.textContent = "";
-        return;
+    function updateProgress() {
+      const progressBar = document.getElementById('progressBar');
+      const stepIndicator = document.getElementById('stepIndicator');
+      const lockBtn = document.getElementById('lockBtn');
+
+      if (currentScreen === 'login') {
+        progressBar.style.display = 'none';
+        stepIndicator.style.display = 'none';
+        lockBtn.style.display = 'none';
+      } else {
+        progressBar.style.display = 'block';
+        stepIndicator.style.display = 'block';
+        lockBtn.style.display = 'flex';
+
+        let step = parseInt(currentScreen) || totalSteps;
+        if (currentScreen === 'result') step = totalSteps;
+
+        document.getElementById('currentStep').textContent = Math.min(step, totalSteps);
+        document.getElementById('progressFill').style.width = ((step / totalSteps) * 100) + '%';
       }
-
-      outEl.textContent = r.result + " genstande";
-      detailEl.textContent = "Uafrundet værdi: " + (Math.round(r.B11 * 1000) / 1000).toString();
-
-      dbgEl.textContent =
-        "B7 (aktivitet): " + r.B7 + "\n" +
-        "I8 (søvn): " + r.I8 + "\n" +
-        "K8 (mad): " + r.K8 + "\n" +
-        "Q7 (vand): " + r.Q7 + "\n" +
-        "B10 (før vol%): " + r.B10 + "\n" +
-        "D7 (vol% faktor): " + r.D7 + "\n" +
-        "B11 (endelig): " + r.B11;
     }
 
     function setUnlocked(unlocked) {
       if (unlocked) localStorage.setItem(STORAGE_KEY, "1");
       else localStorage.removeItem(STORAGE_KEY);
 
-      document.getElementById("gate").style.display = unlocked ? "none" : "flex";
-      document.getElementById("app").style.display = unlocked ? "block" : "none";
+      if (unlocked) {
+        showScreen('1');
+      } else {
+        // Reset all screens
+        document.querySelectorAll('.screen').forEach(s => {
+          s.classList.remove('active', 'prev');
+        });
+        document.getElementById('screen-login').classList.add('active');
+        currentScreen = 'login';
+        updateProgress();
+      }
     }
 
     function tryUnlock() {
       const pw = document.getElementById("pw").value;
       const ok = pw === EXPECTED_PASSCODE;
-      document.getElementById("pwErr").style.display = ok ? "none" : "block";
+      const errEl = document.getElementById("pwErr");
+
+      errEl.classList.toggle('show', !ok);
+
       if (ok) {
         const snd = document.getElementById("unlockSound");
         if (snd) {
           try {
             snd.loop = true;
-            snd.onended = () => { try { snd.currentTime = 0; snd.play(); } catch (e) {} };
             snd.currentTime = 0;
             snd.play();
           } catch (e) {}
         }
         setUnlocked(true);
-        render();
       }
     }
 
-    document.getElementById("unlock").addEventListener("click", tryUnlock);
-    document.getElementById("pw").addEventListener("keydown", (e) => {
-      if (e.key === "Enter") tryUnlock();
-    });
-
-    document.getElementById("lock").addEventListener("click", () => setUnlocked(false));
-
-    document.getElementById("reset").addEventListener("click", () => {
-      const ids = ["vol","ath","atm","sleep","meat","bread","greens","fruit","liquid","water"];
-      ids.forEach(id => document.getElementById(id).value = "0");
-      render();
-    });
-
-    // Recalc on any input change
-    const ids = ["vol","ath","atm","sleep","meat","bread","greens","fruit","liquid","water"];
-    ids.forEach(id => {
-      document.getElementById(id).addEventListener("input", render);
-    });
-
-    // Contextual help panel
-    const helpPanel = document.getElementById("helpPanel");
-    function setHelpFor(el) {
-      if (!helpPanel || !el) return;
-      const helpTxt = el.getAttribute("data-help") || "";
-      if (helpTxt) {
-        helpPanel.textContent = helpTxt;
-      }
+    function showResult() {
+      const r = calculate();
+      document.getElementById('resultNumber').textContent = r.result;
+      document.getElementById('resultDetail').textContent = 'Uafrundet: ' + (Math.round(r.B11 * 100) / 100);
+      showScreen('result');
     }
-    ids.forEach(id => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.addEventListener("focus", () => setHelpFor(el));
-      el.addEventListener("click", () => setHelpFor(el));
-      el.addEventListener("touchstart", () => setHelpFor(el), { passive: true });
+
+    // Event listeners
+    document.getElementById('unlockBtn').addEventListener('click', tryUnlock);
+    document.getElementById('pw').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') tryUnlock();
+    });
+
+    document.getElementById('lockBtn').addEventListener('click', () => setUnlocked(false));
+
+    // Navigation buttons
+    document.getElementById('next-1').addEventListener('click', () => showScreen('2'));
+    document.getElementById('next-2').addEventListener('click', () => showScreen('3'));
+    document.getElementById('next-3').addEventListener('click', () => showScreen('4'));
+    document.getElementById('next-4').addEventListener('click', () => showScreen('5'));
+    document.getElementById('next-5').addEventListener('click', () => showResult());
+
+    document.getElementById('back-2').addEventListener('click', () => showScreen('1', 'back'));
+    document.getElementById('back-3').addEventListener('click', () => showScreen('2', 'back'));
+    document.getElementById('back-4').addEventListener('click', () => showScreen('3', 'back'));
+    document.getElementById('back-5').addEventListener('click', () => showScreen('4', 'back'));
+
+    document.getElementById('restartBtn').addEventListener('click', () => {
+      // Clear all inputs
+      ['vol','ath','atm','sleep','meat','bread','greens','fruit','liquid','water'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+      showScreen('1', 'back');
+    });
+
+    document.getElementById('editBtn').addEventListener('click', () => {
+      showScreen('1', 'back');
+    });
+
+    // Allow Enter key to go to next screen on inputs
+    const inputNavigation = {
+      'vol': 'next-1',
+      'atm': 'next-2',
+      'sleep': 'next-3',
+      'water': 'next-5'
+    };
+
+    Object.keys(inputNavigation).forEach(inputId => {
+      document.getElementById(inputId).addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          document.getElementById(inputNavigation[inputId]).click();
+        }
+      });
     });
 
     // Auto-unlock if previously unlocked
-    setUnlocked(localStorage.getItem(STORAGE_KEY) === "1");
-    if (localStorage.getItem(STORAGE_KEY) === "1") render();
+    if (localStorage.getItem(STORAGE_KEY) === "1") {
+      document.getElementById('screen-login').classList.remove('active');
+      document.getElementById('screen-1').classList.add('active');
+      currentScreen = '1';
+      updateProgress();
+    }
   </script>
 </body>
 </html>
