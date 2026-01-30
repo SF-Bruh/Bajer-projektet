@@ -2,7 +2,12 @@
 <html lang="da">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Bajere" />
+  <meta name="theme-color" content="#0a0a0f" />
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%230a0a0f' width='100' height='100' rx='20'/><text y='70' x='50' text-anchor='middle' font-size='60'>🍺</text></svg>" />
   <title>Hvor mange genstande må du drikke?</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -41,8 +46,12 @@
       background: var(--bg-primary);
       color: var(--text-primary);
       min-height: 100vh;
+      min-height: -webkit-fill-available;
       overflow-x: hidden;
       line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
     }
 
     /* Animated background */
@@ -438,10 +447,12 @@
     @media (max-width: 500px) {
       .form-row {
         grid-template-columns: 1fr;
-        gap: 8px;
+        gap: 10px;
       }
       .form-row input {
-        text-align: left;
+        text-align: center;
+        font-size: 18px;
+        padding: 18px;
       }
     }
 
@@ -614,16 +625,180 @@
       display: none;
     }
 
-    /* Responsive */
+    /* Responsive - iPhone optimized */
     @media (max-width: 640px) {
       .container {
-        padding: 24px 16px;
+        padding: 20px 16px;
+        padding-bottom: calc(20px + env(safe-area-inset-bottom));
       }
       .card {
         padding: 24px 20px;
+        border-radius: 20px;
+      }
+      .card:hover {
+        transform: none;
       }
       .gate-card {
-        padding: 40px 24px;
+        padding: 48px 28px;
+        border-radius: 28px;
+        margin: 16px;
+        max-width: none;
+        width: calc(100% - 32px);
+      }
+      .gate-logo {
+        width: 72px;
+        height: 72px;
+      }
+      .gate-title {
+        font-size: 26px;
+      }
+      .header {
+        margin-bottom: 28px;
+        padding-top: 12px;
+      }
+      .header h1 {
+        font-size: 28px;
+        line-height: 1.2;
+      }
+      .header p {
+        font-size: 15px;
+        line-height: 1.5;
+        padding: 0 8px;
+      }
+      .card-title {
+        font-size: 20px;
+        margin-bottom: 20px;
+      }
+      .form-row {
+        padding: 14px 16px;
+        border-radius: 14px;
+        gap: 12px;
+      }
+      .form-row label {
+        font-size: 15px;
+      }
+      .form-row input {
+        padding: 16px 18px;
+        font-size: 17px;
+        border-radius: 14px;
+        /* Prevent iOS zoom on focus */
+        font-size: 16px;
+      }
+      .input-group input {
+        padding: 20px 24px;
+        font-size: 17px;
+        border-radius: 18px;
+      }
+      .btn-primary {
+        padding: 20px 32px;
+        font-size: 17px;
+        border-radius: 18px;
+      }
+      .btn-secondary {
+        padding: 16px 24px;
+        font-size: 15px;
+        border-radius: 14px;
+        flex: 1;
+        text-align: center;
+      }
+      .btn-group {
+        margin-top: 20px;
+      }
+      .help-panel {
+        display: none;
+      }
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      .result-main {
+        font-size: 32px;
+      }
+      .result-card {
+        text-align: center;
+        padding: 32px 24px;
+      }
+      details {
+        text-align: left;
+      }
+      summary {
+        font-size: 15px;
+        padding: 12px 0;
+      }
+    }
+
+    /* Extra small phones */
+    @media (max-width: 380px) {
+      .gate-card {
+        padding: 36px 20px;
+      }
+      .header h1 {
+        font-size: 24px;
+      }
+      .form-row {
+        padding: 12px 14px;
+      }
+    }
+
+    /* Touch device optimizations */
+    @media (hover: none) and (pointer: coarse) {
+      .card:hover {
+        transform: none;
+        box-shadow: none;
+      }
+      .card:hover::before {
+        opacity: 0;
+      }
+      .btn-primary:hover {
+        transform: none;
+      }
+      .btn-secondary:hover {
+        background: transparent;
+        border-color: var(--border);
+        color: var(--text-secondary);
+      }
+      .form-row:hover {
+        background: rgba(255, 255, 255, 0.02);
+      }
+      .form-row:hover label {
+        color: var(--text-secondary);
+      }
+      /* Active states for touch */
+      .btn-primary:active {
+        transform: scale(0.98);
+        opacity: 0.9;
+      }
+      .btn-secondary:active {
+        background: rgba(212, 175, 55, 0.1);
+        border-color: var(--gold);
+        color: var(--gold);
+      }
+      .form-row:active {
+        background: rgba(255, 255, 255, 0.05);
+      }
+    }
+
+    /* Landscape mode on phones */
+    @media (max-height: 500px) and (orientation: landscape) {
+      #gate {
+        padding: 16px;
+        min-height: auto;
+      }
+      .gate-card {
+        padding: 24px 32px;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 16px;
+      }
+      .gate-logo {
+        width: 56px;
+        height: 56px;
+      }
+      .gate-title {
+        font-size: 22px;
+      }
+      .gate-subtitle {
+        margin-bottom: 16px;
       }
     }
 
