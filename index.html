@@ -381,6 +381,13 @@
       40%,80%  { transform: translateX(8px); }
     }
 
+    /* ── Invalid field ── */
+    .field.invalid, .food-cell.invalid {
+      border-color: #ff6b72 !important;
+      box-shadow: 0 0 0 4px rgba(255,107,114,.15) !important;
+      animation: shake .5s ease;
+    }
+
     /* ── Result screen ── */
     .result-num {
       font-family: 'Playfair Display', serif;
@@ -994,8 +1001,11 @@
         const target = d.dataset.step;
         const curIdx = ORDER.indexOf(current);
         const targetIdx = ORDER.indexOf(target);
-        if (targetIdx !== curIdx) {
-          go(target, targetIdx > curIdx ? 'forward' : 'back');
+        if (targetIdx < curIdx) {
+          go(target, 'back');
+        } else if (targetIdx > curIdx) {
+          // Validate current screen before jumping forward
+          $('n' + current)?.click();
         }
       });
     });
@@ -1020,7 +1030,7 @@
       if (current === 'login') return;
       if (document.activeElement?.tagName === 'INPUT') return;
       const idx = ORDER.indexOf(current);
-      if (dx < -60 && idx < ORDER.length - 2 && current !== 'result') go(ORDER[idx + 1], 'forward');
+      if (dx < -60 && idx < ORDER.length - 2 && current !== 'result') $('n' + current)?.click();
       else if (dx > 60 && idx > 1) go(ORDER[idx - 1], 'back');
     });
 
@@ -1135,11 +1145,54 @@
     $('pw').onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); tryUnlock(); } };
     $('lockBtn').onclick = lock;
 
-    $('n1').onclick = () => go('2','forward');
-    $('n2').onclick = () => go('3','forward');
-    $('n3').onclick = () => go('4','forward');
-    $('n4').onclick = () => go('5','forward');
-    $('n5').onclick = () => showResult();
+    // ── Validation ────────────────────────────────────────────────
+    function invalidate(...ids) {
+      let anyInvalid = false;
+      let firstInvalid = null;
+      ids.forEach(id => {
+        const el = $(id);
+        if (!el) return;
+        const empty = !parseNum(el.value) && el.value.trim() === '';
+        if (empty) {
+          anyInvalid = true;
+          // Remove then re-add so animation re-triggers
+          el.classList.remove('invalid');
+          requestAnimationFrame(() => el.classList.add('invalid'));
+          el.addEventListener('animationend', () => el.classList.remove('invalid'), { once: true });
+          if (!firstInvalid) firstInvalid = el;
+        }
+      });
+      if (anyInvalid) {
+        haptic('heavy');
+        firstInvalid?.focus();
+      }
+      return anyInvalid;
+    }
+
+    // Food cells need slightly different handling (the cell, not the input)
+    function invalidateFood(...ids) {
+      let anyInvalid = false;
+      ids.forEach(id => {
+        const input = $(id);
+        if (!input) return;
+        const cell = input.closest('.food-cell') || input;
+        const empty = input.value.trim() === '';
+        if (empty) {
+          anyInvalid = true;
+          cell.classList.remove('invalid');
+          requestAnimationFrame(() => cell.classList.add('invalid'));
+          cell.addEventListener('animationend', () => cell.classList.remove('invalid'), { once: true });
+        }
+      });
+      if (anyInvalid) haptic('heavy');
+      return anyInvalid;
+    }
+
+    $('n1').onclick = () => { if (!invalidate('vol')) go('2','forward'); };
+    $('n2').onclick = () => { if (!invalidate('ath','atm')) go('3','forward'); };
+    $('n3').onclick = () => { if (!invalidate('sleep')) go('4','forward'); };
+    $('n4').onclick = () => { if (!invalidateFood('meat','bread','greens','fruit') && !invalidate('liquid')) go('5','forward'); };
+    $('n5').onclick = () => { if (!invalidate('water')) showResult(); };
 
     $('b2').onclick = () => go('1','back');
     $('b3').onclick = () => go('2','back');
@@ -1154,11 +1207,12 @@
     $('editBtn').onclick = openModal;
 
     // Enter key navigation
-    $('vol').onkeydown = e => { if (e.key==='Enter') { e.preventDefault(); $('n1').click(); } };
-    $('atm').onkeydown = e => { if (e.key==='Enter') { e.preventDefault(); $('n2').click(); } };
-    $('sleep').onkeydown = e => { if (e.key==='Enter') { e.preventDefault(); $('n3').click(); } };
+    $('vol').onkeydown    = e => { if (e.key==='Enter') { e.preventDefault(); $('n1').click(); } };
+    $('ath').onkeydown    = e => { if (e.key==='Enter') { e.preventDefault(); $('atm').focus(); } };
+    $('atm').onkeydown    = e => { if (e.key==='Enter') { e.preventDefault(); $('n2').click(); } };
+    $('sleep').onkeydown  = e => { if (e.key==='Enter') { e.preventDefault(); $('n3').click(); } };
     $('liquid').onkeydown = e => { if (e.key==='Enter') { e.preventDefault(); $('n4').click(); } };
-    $('water').onkeydown = e => { if (e.key==='Enter') { e.preventDefault(); $('n5').click(); } };
+    $('water').onkeydown  = e => { if (e.key==='Enter') { e.preventDefault(); $('n5').click(); } };
 
     // ── Auto-unlock ───────────────────────────────────────────────
     if (localStorage.getItem(KEY) === '1') {
