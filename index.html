@@ -65,18 +65,20 @@
     }
     .dots.visible { opacity: 1; }
     .dot {
-      width: 6px; height: 6px;
+      width: 8px; height: 8px;
       border-radius: 50%;
       background: var(--glass-border);
       transition: background .4s, transform .4s;
+      cursor: pointer;
     }
+    .dot:active { transform: scale(1.3); }
     .dot.active {
       background: var(--gold);
-      transform: scale(1.4);
+      transform: scale(1.3);
       box-shadow: 0 0 8px var(--gold);
     }
     .dot.done {
-      background: rgba(212,175,55,.45);
+      background: rgba(212,175,55,.5);
     }
 
     /* ── Lock button ── */
@@ -115,51 +117,40 @@
       padding: 32px 28px;
       padding-top: calc(72px + env(safe-area-inset-top));
       padding-bottom: calc(32px + env(safe-area-inset-bottom));
-
-      /* hidden right by default */
       transform: translateX(100%) scale(.96);
       opacity: 0;
       pointer-events: none;
-      /* NO transition on default — handled per-state */
     }
     .screen.slide-in {
-      transition:
-        transform .42s cubic-bezier(.32,.72,0,1),
-        opacity   .42s cubic-bezier(.32,.72,0,1);
+      transition: transform .42s cubic-bezier(.32,.72,0,1), opacity .42s cubic-bezier(.32,.72,0,1);
       transform: translateX(0) scale(1);
       opacity: 1;
       pointer-events: auto;
     }
     .screen.slide-out-left {
-      transition:
-        transform .38s cubic-bezier(.4,0,.6,1),
-        opacity   .38s cubic-bezier(.4,0,.6,1);
+      transition: transform .38s cubic-bezier(.4,0,.6,1), opacity .38s cubic-bezier(.4,0,.6,1);
       transform: translateX(-28%) scale(.93);
       opacity: 0;
       pointer-events: none;
     }
     .screen.slide-out-right {
-      transition:
-        transform .38s cubic-bezier(.4,0,.6,1),
-        opacity   .38s cubic-bezier(.4,0,.6,1);
+      transition: transform .38s cubic-bezier(.4,0,.6,1), opacity .38s cubic-bezier(.4,0,.6,1);
       transform: translateX(100%) scale(.96);
       opacity: 0;
       pointer-events: none;
     }
-    /* Entry from left (back navigation) */
     .screen.enter-from-left {
       transform: translateX(-28%) scale(.93);
       opacity: 0;
     }
 
-    /* ── Screen content — stagger children ── */
+    /* ── Screen content ── */
     .screen-content {
       width: 100%;
       max-width: 380px;
       text-align: center;
     }
 
-    /* Stagger entrance — each direct child animates in */
     .screen.slide-in .screen-content > * {
       animation: fadeUp .45s cubic-bezier(.22,.68,0,1.2) both;
     }
@@ -169,6 +160,8 @@
     .screen.slide-in .screen-content > *:nth-child(4) { animation-delay: .26s; }
     .screen.slide-in .screen-content > *:nth-child(5) { animation-delay: .30s; }
     .screen.slide-in .screen-content > *:nth-child(6) { animation-delay: .34s; }
+    .screen.slide-in .screen-content > *:nth-child(7) { animation-delay: .38s; }
+    .screen.slide-in .screen-content > *:nth-child(8) { animation-delay: .42s; }
 
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(16px); }
@@ -212,7 +205,6 @@
 
     /* ── Inputs ── */
     .field-wrap { margin-bottom: 20px; }
-
     .field-label {
       display: block;
       font-size: 11px;
@@ -222,7 +214,6 @@
       color: var(--text-muted);
       margin-bottom: 10px;
     }
-
     .field {
       width: 100%;
       padding: 22px 24px;
@@ -244,25 +235,13 @@
       box-shadow: 0 0 0 4px rgba(212,175,55,.14);
       background: rgba(255,255,255,.08);
     }
+    .hint { font-size: 12px; color: var(--text-muted); margin-top: 10px; }
 
-    .hint {
-      font-size: 12px;
-      color: var(--text-muted);
-      margin-top: 10px;
-    }
-
-    /* Two-column input row */
     .two-col { display: flex; gap: 14px; margin-bottom: 20px; }
     .two-col .field-wrap { flex: 1; margin-bottom: 0; }
     .two-col .field { font-size: 22px; padding: 18px 16px; }
 
-    /* Food grid */
-    .food-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
+    .food-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
     .food-cell {
       background: var(--glass);
       border: 1.5px solid var(--border);
@@ -293,7 +272,6 @@
       -webkit-appearance: none;
     }
     .food-cell input::placeholder { color: var(--text-muted); font-weight: 400; }
-
     .small-field { font-size: 20px !important; padding: 16px 20px !important; }
 
     /* ── Buttons ── */
@@ -311,26 +289,18 @@
       -webkit-appearance: none;
     }
     .btn:active { transform: scale(.97); opacity: .92; }
-
     .btn-gold {
       background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
       color: var(--bg);
       box-shadow: 0 6px 24px rgba(212,175,55,.3);
     }
     .btn-gold:active { box-shadow: 0 2px 10px rgba(212,175,55,.2); }
-
     .btn-ghost {
       background: var(--glass);
       border: 1.5px solid var(--glass-border);
       color: var(--text-sub);
     }
-
-    /* Row of buttons */
-    .btn-row {
-      display: flex;
-      gap: 12px;
-      margin-top: 28px;
-    }
+    .btn-row { display: flex; gap: 12px; margin-top: 28px; }
     .btn-row .btn-gold { flex: 1; }
     .btn-back {
       flex: none !important;
@@ -360,7 +330,7 @@
     /* ── Result screen ── */
     .result-num {
       font-family: 'Playfair Display', serif;
-      font-size: 110px;
+      font-size: 100px;
       font-weight: 700;
       line-height: 1;
       margin-bottom: 4px;
@@ -369,16 +339,30 @@
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
-    .result-unit {
-      font-size: 22px;
+    .result-unit { font-size: 22px; color: var(--text-sub); margin-bottom: 16px; }
+    .result-raw { font-size: 13px; color: var(--text-muted); margin-bottom: 12px; }
+
+    /* ── Tier badge ── */
+    .tier-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, rgba(212,175,55,.2) 0%, rgba(212,175,55,.08) 100%);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 20px;
+      margin-bottom: 28px;
+    }
+    .tier-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--gold-light);
+      margin-bottom: 4px;
+    }
+    .tier-desc {
+      font-size: 12px;
       color: var(--text-sub);
-      margin-bottom: 6px;
+      line-height: 1.4;
     }
-    .result-raw {
-      font-size: 13px;
-      color: var(--text-muted);
-      margin-bottom: 40px;
-    }
+
     .edit-link {
       margin-top: 16px;
       font-size: 14px;
@@ -387,6 +371,103 @@
       cursor: pointer;
       display: inline-block;
     }
+
+    /* ── Step Picker Modal ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.7);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 500;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .3s ease;
+    }
+    .modal-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(180deg, #1a1a24 0%, #0f0f14 100%);
+      border-radius: 28px 28px 0 0;
+      padding: 24px 24px calc(24px + env(safe-area-inset-bottom));
+      z-index: 501;
+      transform: translateY(100%);
+      transition: transform .4s cubic-bezier(.32,.72,0,1);
+    }
+    .modal-overlay.show .modal {
+      transform: translateY(0);
+    }
+    .modal-handle {
+      width: 40px;
+      height: 4px;
+      background: rgba(255,255,255,.2);
+      border-radius: 2px;
+      margin: 0 auto 20px;
+    }
+    .modal-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 20px;
+      color: var(--gold-light);
+    }
+    .step-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 20px;
+      background: var(--glass);
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      cursor: pointer;
+      transition: border-color .2s, background .2s, transform .15s;
+    }
+    .step-item:active {
+      transform: scale(.98);
+      border-color: var(--gold);
+      background: rgba(212,175,55,.1);
+    }
+    .step-icon {
+      font-size: 24px;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(212,175,55,.15);
+      border-radius: 12px;
+    }
+    .step-info { flex: 1; text-align: left; }
+    .step-name { font-size: 15px; font-weight: 500; color: var(--text); }
+    .step-value { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .step-arrow { color: var(--text-muted); font-size: 18px; }
+
+    .modal-close {
+      margin-top: 16px;
+      padding: 16px;
+      width: 100%;
+      background: transparent;
+      border: 1.5px solid var(--glass-border);
+      border-radius: 14px;
+      color: var(--text-sub);
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: border-color .2s;
+    }
+    .modal-close:active { border-color: var(--gold); }
 
     /* ── Swipe hint ── */
     .swipe-hint {
@@ -400,27 +481,27 @@
       opacity: 0;
       transition: opacity .4s;
       pointer-events: none;
-      white-space: nowrap;
     }
     .swipe-hint.show { opacity: 1; }
 
     audio { display: none; }
 
-    /* ── Responsive tweaks ── */
-    @media (max-height: 680px) {
+    /* ── Responsive ── */
+    @media (max-height: 700px) {
       .icon { width: 60px; height: 60px; font-size: 30px; margin-bottom: 20px; }
       .title { font-size: 24px; }
       .subtitle { font-size: 14px; margin-bottom: 24px; }
       .field { padding: 16px 20px; font-size: 24px; border-radius: 18px; }
-      .btn  { padding: 17px; }
+      .btn { padding: 17px; }
       .result-num { font-size: 80px; }
+      .tier-badge { padding: 10px 16px; margin-bottom: 20px; }
     }
-    @media (max-height: 568px) {
+    @media (max-height: 600px) {
       .icon { width: 50px; height: 50px; font-size: 26px; margin-bottom: 14px; }
       .title { font-size: 20px; }
       .subtitle { font-size: 13px; margin-bottom: 18px; }
       .field { padding: 14px 16px; font-size: 20px; }
-      .result-num { font-size: 60px; }
+      .result-num { font-size: 64px; }
     }
   </style>
 </head>
@@ -428,7 +509,7 @@
   <div class="bg-glow"></div>
   <audio id="unlockSound" src="shitbro.mp3" preload="auto"></audio>
 
-  <!-- Dot progress -->
+  <!-- Dot progress (clickable) -->
   <div class="dots" id="dots">
     <div class="dot" data-step="1"></div>
     <div class="dot" data-step="2"></div>
@@ -445,7 +526,58 @@
   </button>
 
   <!-- Swipe hint -->
-  <div class="swipe-hint" id="swipeHint">Swipe for at navigere</div>
+  <div class="swipe-hint" id="swipeHint">Swipe eller tryk på dots for at navigere</div>
+
+  <!-- Step Picker Modal -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal" id="stepModal">
+      <div class="modal-handle"></div>
+      <h2 class="modal-title">Ret dine svar</h2>
+      <div class="step-list" id="stepList">
+        <div class="step-item" data-goto="1">
+          <div class="step-icon">🍻</div>
+          <div class="step-info">
+            <div class="step-name">Alkoholprocent</div>
+            <div class="step-value" id="val-vol">Ikke udfyldt</div>
+          </div>
+          <div class="step-arrow">→</div>
+        </div>
+        <div class="step-item" data-goto="2">
+          <div class="step-icon">⏰</div>
+          <div class="step-info">
+            <div class="step-name">Mødetid</div>
+            <div class="step-value" id="val-time">Ikke udfyldt</div>
+          </div>
+          <div class="step-arrow">→</div>
+        </div>
+        <div class="step-item" data-goto="3">
+          <div class="step-icon">😴</div>
+          <div class="step-info">
+            <div class="step-name">Søvn</div>
+            <div class="step-value" id="val-sleep">Ikke udfyldt</div>
+          </div>
+          <div class="step-arrow">→</div>
+        </div>
+        <div class="step-item" data-goto="4">
+          <div class="step-icon">🍖</div>
+          <div class="step-info">
+            <div class="step-name">Mad</div>
+            <div class="step-value" id="val-food">Ikke udfyldt</div>
+          </div>
+          <div class="step-arrow">→</div>
+        </div>
+        <div class="step-item" data-goto="5">
+          <div class="step-icon">💧</div>
+          <div class="step-info">
+            <div class="step-name">Vand</div>
+            <div class="step-value" id="val-water">Ikke udfyldt</div>
+          </div>
+          <div class="step-arrow">→</div>
+        </div>
+      </div>
+      <button class="modal-close" id="modalClose">Annuller</button>
+    </div>
+  </div>
 
   <div class="screens" id="screens">
 
@@ -574,10 +706,14 @@
     <!-- ░ RESULT ░ -->
     <div class="screen" id="s-result">
       <div class="screen-content">
-        <div class="icon">🎉</div>
+        <div class="icon" id="resultIcon">🎉</div>
         <div class="result-num" id="resNum">0</div>
         <div class="result-unit">genstande</div>
         <div class="result-raw" id="resRaw"></div>
+        <div class="tier-badge">
+          <div class="tier-name" id="tierName">-</div>
+          <div class="tier-desc" id="tierDesc">-</div>
+        </div>
         <button class="btn btn-gold" id="restartBtn">Prøv igen</button>
         <span class="edit-link" id="editBtn">Ret mine svar</span>
       </div>
@@ -590,14 +726,30 @@
     const PASS = "bajerforfandenda";
     const KEY  = "hobby_calc_unlocked";
 
-    // ── Screen order ──────────────────────────────────────────────
     const ORDER = ['login','1','2','3','4','5','result'];
     let current = 'login';
+    let fromResult = false; // Track if we came from result screen
+
+    const $ = id => document.getElementById(id);
+
+    // ── Tiers ─────────────────────────────────────────────────────
+    const TIERS = [
+      { max: 1,  icon: '👶', name: 'Infant', desc: 'Bruh bare bliv hjemme, hvad fanden laver du ude?' },
+      { max: 4,  icon: '💪', name: 'Gym-bro', desc: 'Respekt for at du passer på din krop bro' },
+      { max: 5,  icon: '😎', name: 'Just a regular type dude', desc: 'Fed indstilling' },
+      { max: 7,  icon: '🍷', name: 'Experienced alcoholic', desc: 'Du er så cool man' },
+      { max: 9,  icon: '💊', name: 'Antabus-tier', desc: 'Enten er du arbejdsløs eller bare en funktionel alkoholiker' },
+      { max: Infinity, icon: '🦇', name: "Glostrups Batman", desc: 'Du er udødelig og så lækker altså' }
+    ];
+
+    function getTier(n) {
+      for (const t of TIERS) {
+        if (n <= t.max) return t;
+      }
+      return TIERS[TIERS.length - 1];
+    }
 
     // ── Helpers ───────────────────────────────────────────────────
-    const $ = id => document.getElementById(id);
-    const el = id => document.querySelector('#' + id);
-
     function parseNum(v) {
       const s = String(v ?? '').trim().replace(/\s+/g,'').replace(',','.');
       if (!s) return null;
@@ -635,18 +787,14 @@
       return { result: roundHalf(B11), raw: Math.round(B11 * 100) / 100 };
     }
 
-    // ── Animated number counter ───────────────────────────────────
+    // ── Animated counter ──────────────────────────────────────────
     function animateNumber(el, target) {
       const duration = 900;
       const start = performance.now();
-      const from  = 0;
-      const diff  = target - from;
-
       function frame(now) {
-        const t  = Math.min((now - start) / duration, 1);
-        const ease = 1 - Math.pow(1 - t, 3); // ease-out-cubic
-        const cur = Math.round(from + diff * ease);
-        el.textContent = cur;
+        const t = Math.min((now - start) / duration, 1);
+        const ease = 1 - Math.pow(1 - t, 3);
+        el.textContent = Math.round(target * ease);
         if (t < 1) requestAnimationFrame(frame);
       }
       requestAnimationFrame(frame);
@@ -655,27 +803,20 @@
     // ── Screen transition ─────────────────────────────────────────
     function go(to, dir = 'forward') {
       if (to === current) return;
-
-      // Dismiss keyboard
       document.activeElement?.blur();
 
       const fromEl = $('s-' + current);
       const toEl   = $('s-' + to);
 
-      // Strip all state classes from both
       [fromEl, toEl].forEach(e => {
         e.classList.remove('slide-in','slide-out-left','slide-out-right','enter-from-left');
       });
 
       if (dir === 'forward') {
-        // Outgoing → slide left
         fromEl.classList.add('slide-out-left');
-        // Incoming starts right, then slides in
         toEl.classList.add('slide-in');
       } else {
-        // Outgoing → slide right
         fromEl.classList.add('slide-out-right');
-        // Incoming comes from the left
         toEl.classList.add('enter-from-left');
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
@@ -688,39 +829,55 @@
       current = to;
       updateChrome();
 
-      // Auto-focus first input on new screen after transition
       setTimeout(() => {
         const inp = toEl.querySelector('input');
         if (inp && to !== 'login' && to !== 'result') inp.focus();
       }, 420);
     }
 
-    // ── Dots + chrome ─────────────────────────────────────────────
+    // ── Update chrome (dots, etc) ─────────────────────────────────
     function updateChrome() {
       const dotsEl  = $('dots');
       const lockBtn = $('lockBtn');
       const hint    = $('swipeHint');
-      const isApp   = (current !== 'login' && current !== 'result');
+      const isApp   = current !== 'login' && current !== 'result';
       const stepNum = parseInt(current);
 
-      dotsEl.classList.toggle('visible', isApp);
+      dotsEl.classList.toggle('visible', current !== 'login');
       lockBtn.classList.toggle('visible', current !== 'login');
 
-      // Show swipe hint briefly on first app screen
-      if (current === '1') {
+      if (current === '1' && !fromResult) {
         hint.classList.add('show');
-        setTimeout(() => hint.classList.remove('show'), 2200);
+        setTimeout(() => hint.classList.remove('show'), 2500);
       }
 
-      if (isApp) {
-        document.querySelectorAll('.dot').forEach(d => {
-          const s = parseInt(d.dataset.step);
-          d.classList.remove('active','done');
-          if (s === stepNum) d.classList.add('active');
-          else if (s < stepNum) d.classList.add('done');
-        });
-      }
+      document.querySelectorAll('.dot').forEach(d => {
+        const s = parseInt(d.dataset.step);
+        d.classList.remove('active','done');
+        if (current === 'result') {
+          d.classList.add('done');
+        } else if (s === stepNum) {
+          d.classList.add('active');
+        } else if (s < stepNum) {
+          d.classList.add('done');
+        }
+      });
     }
+
+    // ── Dot click navigation ──────────────────────────────────────
+    document.querySelectorAll('.dot').forEach(d => {
+      d.addEventListener('click', () => {
+        const target = d.dataset.step;
+        if (current === 'login') return;
+        const curIdx = ORDER.indexOf(current);
+        const targetIdx = ORDER.indexOf(target);
+        if (targetIdx < curIdx) {
+          go(target, 'back');
+        } else if (targetIdx > curIdx) {
+          go(target, 'forward');
+        }
+      });
+    });
 
     // ── Swipe gesture ─────────────────────────────────────────────
     let touchX0 = null, touchY0 = null, swiping = false;
@@ -745,24 +902,57 @@
       const dx = e.changedTouches[0].clientX - touchX0;
       touchX0 = null; swiping = false;
 
-      if (current === 'login' || current === 'result') return;
-      // Only swipe if not focused in an input
-      if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
+      if (current === 'login') return;
+      if (document.activeElement?.tagName === 'INPUT') return;
 
-      if (dx < -50) {
-        // Swipe left → next
-        navigate('forward');
-      } else if (dx > 50) {
-        // Swipe right → back
-        navigate('back');
+      const idx = ORDER.indexOf(current);
+      if (dx < -50 && idx < ORDER.length - 2 && current !== 'result') {
+        go(ORDER[idx + 1], 'forward');
+      } else if (dx > 50 && idx > 1) {
+        go(ORDER[idx - 1], 'back');
       }
     });
 
-    function navigate(dir) {
-      const idx = ORDER.indexOf(current);
-      if (dir === 'forward' && idx < ORDER.length - 2) go(ORDER[idx + 1], 'forward');
-      if (dir === 'back'    && idx > 1)                go(ORDER[idx - 1], 'back');
+    // ── Modal functions ───────────────────────────────────────────
+    function openModal() {
+      // Update values in modal
+      const vol = $('vol').value || '-';
+      const ath = $('ath').value || '-';
+      const atm = $('atm').value || '00';
+      const sleep = $('sleep').value || '-';
+      const water = $('water').value || '-';
+      const meat = $('meat').value || '0';
+      const bread = $('bread').value || '0';
+
+      $('val-vol').textContent = vol !== '-' ? vol + ' %' : 'Ikke udfyldt';
+      $('val-time').textContent = ath !== '-' ? `Kl. ${ath}:${atm.padStart(2,'0')}` : 'Ikke udfyldt';
+      $('val-sleep').textContent = sleep !== '-' ? sleep + ' timer' : 'Ikke udfyldt';
+      $('val-food').textContent = (meat !== '0' || bread !== '0') ? 'Udfyldt' : 'Ikke udfyldt';
+      $('val-water').textContent = water !== '-' && water !== '0' ? water + ' glas' : 'Ikke udfyldt';
+
+      $('modalOverlay').classList.add('show');
     }
+
+    function closeModal() {
+      $('modalOverlay').classList.remove('show');
+    }
+
+    // ── Step picker item clicks ───────────────────────────────────
+    document.querySelectorAll('.step-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const target = item.dataset.goto;
+        closeModal();
+        setTimeout(() => {
+          fromResult = true;
+          go(target, 'back');
+        }, 300);
+      });
+    });
+
+    $('modalClose').onclick = closeModal;
+    $('modalOverlay').addEventListener('click', e => {
+      if (e.target === $('modalOverlay')) closeModal();
+    });
 
     // ── Auth ──────────────────────────────────────────────────────
     function tryUnlock() {
@@ -779,11 +969,9 @@
 
     function lock() {
       localStorage.removeItem(KEY);
-      // Reset all screens
       ORDER.forEach(id => {
         const e = $('s-' + id);
-        if (!e) return;
-        e.classList.remove('slide-in','slide-out-left','slide-out-right','enter-from-left');
+        if (e) e.classList.remove('slide-in','slide-out-left','slide-out-right','enter-from-left');
       });
       $('s-login').classList.add('slide-in');
       current = 'login';
@@ -794,10 +982,16 @@
     // ── Result ────────────────────────────────────────────────────
     function showResult() {
       const r = calc();
+      const tier = getTier(r.result);
+
       go('result', 'forward');
+
       setTimeout(() => {
         animateNumber($('resNum'), r.result);
         $('resRaw').textContent = 'Uafrundet: ' + r.raw;
+        $('resultIcon').textContent = tier.icon;
+        $('tierName').textContent = tier.name;
+        $('tierDesc').textContent = tier.desc;
       }, 200);
     }
 
@@ -819,12 +1013,14 @@
 
     $('restartBtn').onclick = () => {
       ['vol','ath','atm','sleep','meat','bread','greens','fruit','liquid','water']
-        .forEach(id => $('s-result') && ($( id ).value = ''));
+        .forEach(id => $(id).value = '');
+      fromResult = false;
       go('1','back');
     };
-    $('editBtn').onclick = () => go('5','back');
 
-    // Enter-key on single-field screens
+    $('editBtn').onclick = openModal;
+
+    // Enter-key shortcuts
     $('vol').onkeydown   = e => { if (e.key==='Enter') $('n1').click(); };
     $('sleep').onkeydown = e => { if (e.key==='Enter') $('n3').click(); };
     $('water').onkeydown = e => { if (e.key==='Enter') $('n5').click(); };
