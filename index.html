@@ -7,900 +7,836 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Bajere" />
   <meta name="theme-color" content="#0a0a0f" />
-  <title>Hvor mange genstande må du drikke?</title>
+  <title>Hvor mange genstande?</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
       --gold: #d4af37;
       --gold-light: #f4d03f;
       --gold-dark: #b8860b;
-      --bg-primary: #0a0a0f;
-      --bg-secondary: #12121a;
-      --text-primary: #ffffff;
-      --text-secondary: rgba(255, 255, 255, 0.7);
-      --text-muted: rgba(255, 255, 255, 0.5);
-      --border: rgba(212, 175, 55, 0.2);
-      --border-hover: rgba(212, 175, 55, 0.4);
-      --shadow-gold: 0 0 40px rgba(212, 175, 55, 0.15);
-      --glass-bg: rgba(255, 255, 255, 0.05);
-      --glass-border: rgba(255, 255, 255, 0.1);
+      --bg: #0a0a0f;
+      --text: #ffffff;
+      --text-sub: rgba(255,255,255,0.65);
+      --text-muted: rgba(255,255,255,0.4);
+      --border: rgba(212,175,55,0.22);
+      --glass: rgba(255,255,255,0.055);
+      --glass-border: rgba(255,255,255,0.1);
     }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
     html, body {
       height: 100%;
       overflow: hidden;
-    }
-
-    body {
+      background: var(--bg);
+      color: var(--text);
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      background: var(--bg-primary);
-      color: var(--text-primary);
-      line-height: 1.6;
       -webkit-font-smoothing: antialiased;
       -webkit-tap-highlight-color: transparent;
+      user-select: none;
     }
 
-    /* Animated background */
-    .bg-animation {
+    /* ── Background glow ── */
+    .bg-glow {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 70% 50% at 20% 10%, rgba(212,175,55,.09) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 60% at 80% 90%, rgba(212,175,55,.06) 0%, transparent 70%);
+      animation: glowShift 18s ease-in-out infinite alternate;
+    }
+    @keyframes glowShift {
+      0%   { opacity: 1; transform: scale(1) translate(0,0); }
+      100% { opacity: .8; transform: scale(1.08) translate(1%, 1.5%); }
+    }
+
+    /* ── Dot progress ── */
+    .dots {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -1;
-      overflow: hidden;
-    }
-
-    .bg-animation::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(ellipse at 20% 20%, rgba(212, 175, 55, 0.08) 0%, transparent 50%),
-                  radial-gradient(ellipse at 80% 80%, rgba(212, 175, 55, 0.05) 0%, transparent 50%),
-                  radial-gradient(ellipse at 40% 60%, rgba(184, 134, 11, 0.03) 0%, transparent 40%);
-      animation: bgFloat 20s ease-in-out infinite;
-    }
-
-    @keyframes bgFloat {
-      0%, 100% { transform: translate(0, 0) rotate(0deg); }
-      33% { transform: translate(2%, 2%) rotate(1deg); }
-      66% { transform: translate(-1%, 1%) rotate(-1deg); }
-    }
-
-    /* Floating particles */
-    .particles {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -1;
-      pointer-events: none;
-    }
-
-    .particle {
-      position: absolute;
-      width: 4px;
-      height: 4px;
-      background: var(--gold);
-      border-radius: 50%;
+      top: calc(18px + env(safe-area-inset-top));
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+      z-index: 200;
       opacity: 0;
-      animation: particleFloat 15s infinite;
+      transition: opacity .3s;
+    }
+    .dots.visible { opacity: 1; }
+    .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--glass-border);
+      transition: background .4s, transform .4s;
+    }
+    .dot.active {
+      background: var(--gold);
+      transform: scale(1.4);
+      box-shadow: 0 0 8px var(--gold);
+    }
+    .dot.done {
+      background: rgba(212,175,55,.45);
     }
 
-    .particle:nth-child(1) { left: 10%; animation-delay: 0s; }
-    .particle:nth-child(2) { left: 20%; animation-delay: 2s; }
-    .particle:nth-child(3) { left: 30%; animation-delay: 4s; }
-    .particle:nth-child(4) { left: 50%; animation-delay: 8s; }
-    .particle:nth-child(5) { left: 70%; animation-delay: 1s; }
-    .particle:nth-child(6) { left: 90%; animation-delay: 5s; }
-
-    @keyframes particleFloat {
-      0% { transform: translateY(100vh) scale(0); opacity: 0; }
-      10% { opacity: 0.6; }
-      90% { opacity: 0.6; }
-      100% { transform: translateY(-100vh) scale(1); opacity: 0; }
-    }
-
-    /* Screen container */
-    .screen-container {
+    /* ── Lock button ── */
+    .lock-btn {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: calc(12px + env(safe-area-inset-top));
+      right: 20px;
+      z-index: 200;
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      color: var(--text-muted);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: color .2s, border-color .2s;
+    }
+    .lock-btn.visible { display: flex; }
+    .lock-btn:active { color: var(--gold); border-color: var(--gold); }
+
+    /* ── Screen container ── */
+    .screens {
+      position: fixed; inset: 0; z-index: 10;
       overflow: hidden;
     }
 
-    /* Individual screens */
+    /* ── Each screen ── */
     .screen {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      position: absolute; inset: 0;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      padding: 24px;
-      padding-top: calc(24px + env(safe-area-inset-top));
-      padding-bottom: calc(24px + env(safe-area-inset-bottom));
-      opacity: 0;
-      transform: translateX(100%);
-      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-      pointer-events: none;
-    }
+      padding: 32px 28px;
+      padding-top: calc(72px + env(safe-area-inset-top));
+      padding-bottom: calc(32px + env(safe-area-inset-bottom));
 
-    .screen.active {
+      /* hidden right by default */
+      transform: translateX(100%) scale(.96);
+      opacity: 0;
+      pointer-events: none;
+      /* NO transition on default — handled per-state */
+    }
+    .screen.slide-in {
+      transition:
+        transform .42s cubic-bezier(.32,.72,0,1),
+        opacity   .42s cubic-bezier(.32,.72,0,1);
+      transform: translateX(0) scale(1);
       opacity: 1;
-      transform: translateX(0);
       pointer-events: auto;
     }
-
-    .screen.prev {
-      transform: translateX(-100%);
+    .screen.slide-out-left {
+      transition:
+        transform .38s cubic-bezier(.4,0,.6,1),
+        opacity   .38s cubic-bezier(.4,0,.6,1);
+      transform: translateX(-28%) scale(.93);
+      opacity: 0;
+      pointer-events: none;
+    }
+    .screen.slide-out-right {
+      transition:
+        transform .38s cubic-bezier(.4,0,.6,1),
+        opacity   .38s cubic-bezier(.4,0,.6,1);
+      transform: translateX(100%) scale(.96);
+      opacity: 0;
+      pointer-events: none;
+    }
+    /* Entry from left (back navigation) */
+    .screen.enter-from-left {
+      transform: translateX(-28%) scale(.93);
+      opacity: 0;
     }
 
-    /* Screen content wrapper */
+    /* ── Screen content — stagger children ── */
     .screen-content {
       width: 100%;
-      max-width: 400px;
+      max-width: 380px;
       text-align: center;
     }
 
-    /* Progress bar */
-    .progress-bar {
-      position: fixed;
-      top: env(safe-area-inset-top);
-      left: 0;
-      width: 100%;
-      height: 3px;
-      background: rgba(255, 255, 255, 0.1);
-      z-index: 100;
+    /* Stagger entrance — each direct child animates in */
+    .screen.slide-in .screen-content > * {
+      animation: fadeUp .45s cubic-bezier(.22,.68,0,1.2) both;
+    }
+    .screen.slide-in .screen-content > *:nth-child(1) { animation-delay: .08s; }
+    .screen.slide-in .screen-content > *:nth-child(2) { animation-delay: .14s; }
+    .screen.slide-in .screen-content > *:nth-child(3) { animation-delay: .20s; }
+    .screen.slide-in .screen-content > *:nth-child(4) { animation-delay: .26s; }
+    .screen.slide-in .screen-content > *:nth-child(5) { animation-delay: .30s; }
+    .screen.slide-in .screen-content > *:nth-child(6) { animation-delay: .34s; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--gold), var(--gold-light));
-      transition: width 0.5s ease;
-      box-shadow: 0 0 10px var(--gold);
-    }
-
-    /* Step indicator */
-    .step-indicator {
-      position: fixed;
-      top: calc(20px + env(safe-area-inset-top));
-      right: 24px;
-      font-size: 14px;
-      color: var(--text-muted);
-      z-index: 100;
-    }
-
-    /* Logo/Icon */
-    .screen-icon {
-      width: 80px;
-      height: 80px;
-      background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+    /* ── Screen Icon ── */
+    .icon {
+      width: 76px; height: 76px;
       border-radius: 50%;
-      margin: 0 auto 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 40px;
-      box-shadow: 0 10px 40px rgba(212, 175, 55, 0.3);
-      animation: pulse 3s ease-in-out infinite;
+      background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+      margin: 0 auto 28px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 38px;
+      box-shadow: 0 8px 32px rgba(212,175,55,.28);
+      animation: iconPulse 3s ease-in-out infinite;
+    }
+    @keyframes iconPulse {
+      0%,100% { box-shadow: 0 8px 32px rgba(212,175,55,.28); }
+      50%      { box-shadow: 0 8px 48px rgba(212,175,55,.45); }
     }
 
-    @keyframes pulse {
-      0%, 100% { box-shadow: 0 10px 40px rgba(212, 175, 55, 0.3); }
-      50% { box-shadow: 0 10px 60px rgba(212, 175, 55, 0.5); }
-    }
-
-    /* Titles */
-    .screen-title {
+    /* ── Titles ── */
+    .title {
       font-family: 'Playfair Display', serif;
-      font-size: 32px;
+      font-size: 30px;
       font-weight: 600;
-      margin-bottom: 12px;
-      background: linear-gradient(135deg, var(--text-primary) 0%, var(--gold-light) 100%);
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #fff 0%, var(--gold-light) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
-
-    .screen-subtitle {
-      color: var(--text-secondary);
-      font-size: 16px;
-      margin-bottom: 40px;
-      line-height: 1.5;
+    .subtitle {
+      font-size: 15px;
+      color: var(--text-sub);
+      margin-bottom: 36px;
+      line-height: 1.55;
+      font-weight: 300;
     }
 
-    /* Input styling */
-    .input-wrapper {
-      margin-bottom: 24px;
-    }
+    /* ── Inputs ── */
+    .field-wrap { margin-bottom: 20px; }
 
-    .input-label {
+    .field-label {
       display: block;
-      font-size: 14px;
-      color: var(--text-muted);
-      margin-bottom: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.2px;
       text-transform: uppercase;
-      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 10px;
     }
 
-    .input-field {
+    .field {
       width: 100%;
-      padding: 20px 24px;
-      font-size: 24px;
-      font-family: 'Inter', sans-serif;
+      padding: 22px 24px;
+      font-size: 28px;
       font-weight: 500;
-      background: var(--glass-bg);
-      border: 2px solid var(--border);
-      border-radius: 20px;
-      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
       text-align: center;
+      background: var(--glass);
+      border: 1.5px solid var(--border);
+      border-radius: 22px;
+      color: var(--text);
       outline: none;
-      transition: all 0.3s ease;
+      transition: border-color .25s, box-shadow .25s, background .25s;
+      -webkit-appearance: none;
     }
-
-    .input-field:focus {
+    .field::placeholder { color: var(--text-muted); font-weight: 400; }
+    .field:focus {
       border-color: var(--gold);
-      box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.15);
+      box-shadow: 0 0 0 4px rgba(212,175,55,.14);
+      background: rgba(255,255,255,.08);
     }
 
-    .input-field::placeholder {
+    .hint {
+      font-size: 12px;
       color: var(--text-muted);
-      font-weight: 400;
+      margin-top: 10px;
     }
 
-    .input-hint {
-      font-size: 13px;
-      color: var(--text-muted);
-      margin-top: 12px;
-    }
-
-    /* Multi-input row */
-    .input-row {
-      display: flex;
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-
-    .input-row .input-wrapper {
-      flex: 1;
-      margin-bottom: 0;
-    }
-
-    .input-row .input-field {
-      font-size: 20px;
-      padding: 18px 16px;
-    }
+    /* Two-column input row */
+    .two-col { display: flex; gap: 14px; margin-bottom: 20px; }
+    .two-col .field-wrap { flex: 1; margin-bottom: 0; }
+    .two-col .field { font-size: 22px; padding: 18px 16px; }
 
     /* Food grid */
     .food-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: 1fr 1fr;
       gap: 12px;
-      margin-bottom: 24px;
+      margin-bottom: 16px;
     }
-
-    .food-item {
-      background: var(--glass-bg);
-      border: 2px solid var(--border);
-      border-radius: 16px;
-      padding: 16px 12px;
-      text-align: center;
-      transition: all 0.3s ease;
+    .food-cell {
+      background: var(--glass);
+      border: 1.5px solid var(--border);
+      border-radius: 18px;
+      padding: 16px 12px 14px;
+      transition: border-color .25s;
     }
-
-    .food-item:focus-within {
-      border-color: var(--gold);
-    }
-
-    .food-item label {
+    .food-cell:focus-within { border-color: var(--gold); }
+    .food-cell label {
       display: block;
-      font-size: 12px;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: .8px;
+      text-transform: uppercase;
       color: var(--text-muted);
       margin-bottom: 8px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
     }
-
-    .food-item input {
+    .food-cell input {
       width: 100%;
       background: transparent;
       border: none;
-      font-size: 24px;
-      font-family: 'Inter', sans-serif;
+      font-size: 26px;
       font-weight: 600;
-      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      color: var(--text);
       text-align: center;
       outline: none;
+      -webkit-appearance: none;
     }
+    .food-cell input::placeholder { color: var(--text-muted); font-weight: 400; }
 
-    /* Buttons */
+    .small-field { font-size: 20px !important; padding: 16px 20px !important; }
+
+    /* ── Buttons ── */
     .btn {
-      padding: 20px 40px;
-      font-size: 17px;
-      font-weight: 600;
       font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 17px;
+      border: none;
       border-radius: 20px;
       cursor: pointer;
-      transition: all 0.3s ease;
-      border: none;
+      transition: transform .15s, opacity .15s, box-shadow .2s;
+      display: block;
       width: 100%;
+      padding: 20px;
+      -webkit-appearance: none;
     }
+    .btn:active { transform: scale(.97); opacity: .92; }
 
-    .btn-primary {
+    .btn-gold {
       background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
-      color: var(--bg-primary);
-      box-shadow: 0 4px 20px rgba(212, 175, 55, 0.3);
+      color: var(--bg);
+      box-shadow: 0 6px 24px rgba(212,175,55,.3);
+    }
+    .btn-gold:active { box-shadow: 0 2px 10px rgba(212,175,55,.2); }
+
+    .btn-ghost {
+      background: var(--glass);
+      border: 1.5px solid var(--glass-border);
+      color: var(--text-sub);
     }
 
-    .btn-primary:active {
-      transform: scale(0.98);
-    }
-
-    .btn-secondary {
-      background: transparent;
-      border: 2px solid var(--border);
-      color: var(--text-secondary);
-    }
-
-    .btn-secondary:active {
-      border-color: var(--gold);
-      color: var(--gold);
-    }
-
+    /* Row of buttons */
     .btn-row {
       display: flex;
       gap: 12px;
-      margin-top: 32px;
+      margin-top: 28px;
     }
-
-    .btn-row .btn {
-      flex: 1;
-    }
-
+    .btn-row .btn-gold { flex: 1; }
     .btn-back {
-      flex: 0.4 !important;
-      padding: 20px 24px;
+      flex: none !important;
+      width: 56px !important;
+      padding: 0 !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
     }
 
-    /* Result screen */
-    .result-number {
+    /* ── Error ── */
+    .err {
+      color: #ff6b72;
+      font-size: 13px;
+      margin-top: 14px;
+      display: none;
+      animation: shake .45s ease;
+    }
+    .err.show { display: block; }
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      20%,60%  { transform: translateX(-6px); }
+      40%,80%  { transform: translateX(6px); }
+    }
+
+    /* ── Result screen ── */
+    .result-num {
       font-family: 'Playfair Display', serif;
-      font-size: 96px;
+      font-size: 110px;
       font-weight: 700;
+      line-height: 1;
+      margin-bottom: 4px;
       background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      line-height: 1;
-      margin-bottom: 8px;
-      animation: resultPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-
-    @keyframes resultPop {
-      0% { transform: scale(0.5); opacity: 0; }
-      100% { transform: scale(1); opacity: 1; }
+    .result-unit {
+      font-size: 22px;
+      color: var(--text-sub);
+      margin-bottom: 6px;
     }
-
-    .result-label {
-      font-size: 24px;
-      color: var(--text-secondary);
-      margin-bottom: 8px;
-    }
-
-    .result-detail {
-      font-size: 14px;
+    .result-raw {
+      font-size: 13px;
       color: var(--text-muted);
       margin-bottom: 40px;
     }
-
-    /* Error message */
-    .error-msg {
-      color: #ff6b6b;
+    .edit-link {
+      margin-top: 16px;
       font-size: 14px;
-      margin-top: 12px;
-      display: none;
-    }
-
-    .error-msg.show {
-      display: block;
-      animation: shake 0.5s ease;
-    }
-
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      20%, 60% { transform: translateX(-5px); }
-      40%, 80% { transform: translateX(5px); }
-    }
-
-    /* Lock button */
-    .lock-btn {
-      position: fixed;
-      bottom: calc(24px + env(safe-area-inset-bottom));
-      right: 24px;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      background: var(--glass-bg);
-      border: 1px solid var(--border);
       color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      z-index: 100;
-    }
-
-    .lock-btn:active {
-      border-color: var(--gold);
-      color: var(--gold);
-    }
-
-    /* Restart button on result */
-    .restart-link {
-      color: var(--text-muted);
-      font-size: 14px;
       text-decoration: underline;
       cursor: pointer;
-      margin-top: 16px;
       display: inline-block;
     }
 
-    /* Audio hidden */
-    audio {
-      display: none;
+    /* ── Swipe hint ── */
+    .swipe-hint {
+      position: fixed;
+      bottom: calc(16px + env(safe-area-inset-bottom));
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      color: var(--text-muted);
+      z-index: 200;
+      opacity: 0;
+      transition: opacity .4s;
+      pointer-events: none;
+      white-space: nowrap;
     }
+    .swipe-hint.show { opacity: 1; }
 
-    /* Small adjustments for very small screens */
-    @media (max-height: 667px) {
-      .screen-icon {
-        width: 64px;
-        height: 64px;
-        font-size: 32px;
-        margin-bottom: 24px;
-      }
-      .screen-title {
-        font-size: 26px;
-      }
-      .screen-subtitle {
-        font-size: 14px;
-        margin-bottom: 28px;
-      }
-      .input-field {
-        padding: 16px 20px;
-        font-size: 20px;
-      }
-      .btn {
-        padding: 16px 32px;
-      }
-      .result-number {
-        font-size: 72px;
-      }
+    audio { display: none; }
+
+    /* ── Responsive tweaks ── */
+    @media (max-height: 680px) {
+      .icon { width: 60px; height: 60px; font-size: 30px; margin-bottom: 20px; }
+      .title { font-size: 24px; }
+      .subtitle { font-size: 14px; margin-bottom: 24px; }
+      .field { padding: 16px 20px; font-size: 24px; border-radius: 18px; }
+      .btn  { padding: 17px; }
+      .result-num { font-size: 80px; }
     }
-
     @media (max-height: 568px) {
-      .screen-icon {
-        width: 56px;
-        height: 56px;
-        font-size: 28px;
-        margin-bottom: 16px;
-      }
-      .screen-title {
-        font-size: 22px;
-      }
-      .screen-subtitle {
-        font-size: 13px;
-        margin-bottom: 20px;
-      }
-      .result-number {
-        font-size: 56px;
-      }
+      .icon { width: 50px; height: 50px; font-size: 26px; margin-bottom: 14px; }
+      .title { font-size: 20px; }
+      .subtitle { font-size: 13px; margin-bottom: 18px; }
+      .field { padding: 14px 16px; font-size: 20px; }
+      .result-num { font-size: 60px; }
     }
   </style>
 </head>
 <body>
-  <div class="bg-animation"></div>
-  <div class="particles">
-    <div class="particle"></div>
-    <div class="particle"></div>
-    <div class="particle"></div>
-    <div class="particle"></div>
-    <div class="particle"></div>
-    <div class="particle"></div>
-  </div>
-
+  <div class="bg-glow"></div>
   <audio id="unlockSound" src="shitbro.mp3" preload="auto"></audio>
 
-  <!-- Progress bar (hidden on login) -->
-  <div class="progress-bar" id="progressBar" style="display: none;">
-    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+  <!-- Dot progress -->
+  <div class="dots" id="dots">
+    <div class="dot" data-step="1"></div>
+    <div class="dot" data-step="2"></div>
+    <div class="dot" data-step="3"></div>
+    <div class="dot" data-step="4"></div>
+    <div class="dot" data-step="5"></div>
   </div>
 
-  <!-- Step indicator (hidden on login) -->
-  <div class="step-indicator" id="stepIndicator" style="display: none;">
-    <span id="currentStep">1</span> / <span id="totalSteps">6</span>
-  </div>
-
-  <!-- Lock button (hidden on login) -->
-  <button class="lock-btn" id="lockBtn" style="display: none;">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+  <!-- Lock -->
+  <button class="lock-btn" id="lockBtn" aria-label="Lås">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+      <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
     </svg>
   </button>
 
-  <div class="screen-container">
+  <!-- Swipe hint -->
+  <div class="swipe-hint" id="swipeHint">Swipe for at navigere</div>
 
-    <!-- Screen 0: Login -->
-    <div class="screen active" id="screen-login">
+  <div class="screens" id="screens">
+
+    <!-- ░ LOGIN ░ -->
+    <div class="screen slide-in" id="s-login">
       <div class="screen-content">
-        <div class="screen-icon">🍺</div>
-        <h1 class="screen-title">Dav Fyr</h1>
-        <p class="screen-subtitle">Indtast din adgangskode for at fortsætte</p>
-        <div class="input-wrapper">
-          <input type="password" class="input-field" id="pw" placeholder="••••••••" autocomplete="off" />
+        <div class="icon">🍺</div>
+        <h1 class="title">Dav Fyr</h1>
+        <p class="subtitle">Indtast din adgangskode for at fortsætte</p>
+        <div class="field-wrap">
+          <input class="field" type="password" id="pw" placeholder="••••••••" autocomplete="off" />
         </div>
-        <button class="btn btn-primary" id="unlockBtn">Lås op</button>
-        <p class="error-msg" id="pwErr">Forkert adgangskode. Prøv igen.</p>
+        <button class="btn btn-gold" id="unlockBtn">Lås op</button>
+        <p class="err" id="pwErr">Forkert adgangskode. Prøv igen.</p>
       </div>
     </div>
 
-    <!-- Screen 1: Vol% -->
-    <div class="screen" id="screen-1">
+    <!-- ░ 1 · Vol% ░ -->
+    <div class="screen" id="s-1">
       <div class="screen-content">
-        <div class="screen-icon">🍻</div>
-        <h1 class="screen-title">Alkoholprocent</h1>
-        <p class="screen-subtitle">Hvad er den gennemsnitlige alkoholprocent på det du drikker?</p>
-        <div class="input-wrapper">
-          <input type="text" class="input-field" id="vol" inputmode="decimal" placeholder="5.0" value="" />
-          <p class="input-hint">F.eks. 4.6 for en klassisk pilsner</p>
+        <div class="icon">🍻</div>
+        <h1 class="title">Alkohol&shy;procent</h1>
+        <p class="subtitle">Hvad er den gennemsnitlige Vol% på det du drikker i aften?</p>
+        <div class="field-wrap">
+          <input class="field" id="vol" type="text" inputmode="decimal" placeholder="5.0" />
+          <p class="hint">F.eks. 4.6 for en klassisk pilsner</p>
         </div>
         <div class="btn-row">
-          <button class="btn btn-primary" id="next-1">Næste</button>
+          <button class="btn btn-gold" id="n1">Næste →</button>
         </div>
       </div>
     </div>
 
-    <!-- Screen 2: Activity time -->
-    <div class="screen" id="screen-2">
+    <!-- ░ 2 · Mødetid ░ -->
+    <div class="screen" id="s-2">
       <div class="screen-content">
-        <div class="screen-icon">⏰</div>
-        <h1 class="screen-title">Mødetid</h1>
-        <p class="screen-subtitle">Hvornår skal du være klar i morgen?</p>
-        <div class="input-row">
-          <div class="input-wrapper">
-            <label class="input-label">Time</label>
-            <input type="text" class="input-field" id="ath" inputmode="numeric" placeholder="9" value="" />
+        <div class="icon">⏰</div>
+        <h1 class="title">Mødetid</h1>
+        <p class="subtitle">Hvornår skal du møde ind på kontoret i morgen?</p>
+        <div class="two-col">
+          <div class="field-wrap">
+            <label class="field-label">Time</label>
+            <input class="field" id="ath" type="text" inputmode="numeric" placeholder="9" />
           </div>
-          <div class="input-wrapper">
-            <label class="input-label">Minut</label>
-            <input type="text" class="input-field" id="atm" inputmode="numeric" placeholder="0" value="" />
+          <div class="field-wrap">
+            <label class="field-label">Minut</label>
+            <input class="field" id="atm" type="text" inputmode="numeric" placeholder="00" />
           </div>
         </div>
-        <p class="input-hint">Hvornår har du dit første møde eller aktivitet?</p>
         <div class="btn-row">
-          <button class="btn btn-secondary btn-back" id="back-2">←</button>
-          <button class="btn btn-primary" id="next-2">Næste</button>
+          <button class="btn btn-ghost btn-back" id="b2">←</button>
+          <button class="btn btn-gold" id="n2">Næste →</button>
         </div>
       </div>
     </div>
 
-    <!-- Screen 3: Sleep -->
-    <div class="screen" id="screen-3">
+    <!-- ░ 3 · Søvn ░ -->
+    <div class="screen" id="s-3">
       <div class="screen-content">
-        <div class="screen-icon">😴</div>
-        <h1 class="screen-title">Søvn</h1>
-        <p class="screen-subtitle">Hvor mange timer regner du med at sove?</p>
-        <div class="input-wrapper">
-          <input type="text" class="input-field" id="sleep" inputmode="decimal" placeholder="7" value="" />
-          <p class="input-hint">Timer mellem du går i seng og står op</p>
+        <div class="icon">😴</div>
+        <h1 class="title">Søvn</h1>
+        <p class="subtitle">Hvor mange timer regner du med at sove i nat?</p>
+        <div class="field-wrap">
+          <input class="field" id="sleep" type="text" inputmode="decimal" placeholder="7" />
+          <p class="hint">Timer fra du lægger dig til du står op</p>
         </div>
         <div class="btn-row">
-          <button class="btn btn-secondary btn-back" id="back-3">←</button>
-          <button class="btn btn-primary" id="next-3">Næste</button>
+          <button class="btn btn-ghost btn-back" id="b3">←</button>
+          <button class="btn btn-gold" id="n3">Næste →</button>
         </div>
       </div>
     </div>
 
-    <!-- Screen 4: Food -->
-    <div class="screen" id="screen-4">
+    <!-- ░ 4 · Mad ░ -->
+    <div class="screen" id="s-4">
       <div class="screen-content">
-        <div class="screen-icon">🍖</div>
-        <h1 class="screen-title">Mad</h1>
-        <p class="screen-subtitle">Hvad har du spist i dag?</p>
+        <div class="icon">🍖</div>
+        <h1 class="title">Mad</h1>
+        <p class="subtitle">Hvad har du spist i dag?</p>
         <div class="food-grid">
-          <div class="food-item">
-            <label>Kød (portioner)</label>
-            <input type="text" id="meat" inputmode="decimal" placeholder="0" value="" />
+          <div class="food-cell">
+            <label>Kød</label>
+            <input id="meat" type="text" inputmode="decimal" placeholder="0" />
           </div>
-          <div class="food-item">
-            <label>Brød (stk)</label>
-            <input type="text" id="bread" inputmode="decimal" placeholder="0" value="" />
+          <div class="food-cell">
+            <label>Brød</label>
+            <input id="bread" type="text" inputmode="decimal" placeholder="0" />
           </div>
-          <div class="food-item">
+          <div class="food-cell">
             <label>Grønt</label>
-            <input type="text" id="greens" inputmode="decimal" placeholder="0" value="" />
+            <input id="greens" type="text" inputmode="decimal" placeholder="0" />
           </div>
-          <div class="food-item">
-            <label>Frugt (stk)</label>
-            <input type="text" id="fruit" inputmode="decimal" placeholder="0" value="" />
+          <div class="food-cell">
+            <label>Frugt</label>
+            <input id="fruit" type="text" inputmode="decimal" placeholder="0" />
           </div>
         </div>
-        <div class="input-wrapper">
-          <label class="input-label">Flydende kost (portioner)</label>
-          <input type="text" class="input-field" id="liquid" inputmode="decimal" placeholder="0" value="" style="font-size: 20px; padding: 16px;" />
+        <div class="field-wrap">
+          <label class="field-label">Flydende kost</label>
+          <input class="field small-field" id="liquid" type="text" inputmode="decimal" placeholder="0" />
         </div>
         <div class="btn-row">
-          <button class="btn btn-secondary btn-back" id="back-4">←</button>
-          <button class="btn btn-primary" id="next-4">Næste</button>
+          <button class="btn btn-ghost btn-back" id="b4">←</button>
+          <button class="btn btn-gold" id="n4">Næste →</button>
         </div>
       </div>
     </div>
 
-    <!-- Screen 5: Water -->
-    <div class="screen" id="screen-5">
+    <!-- ░ 5 · Vand ░ -->
+    <div class="screen" id="s-5">
       <div class="screen-content">
-        <div class="screen-icon">💧</div>
-        <h1 class="screen-title">Vand</h1>
-        <p class="screen-subtitle">Hvor mange glas vand drikker du i aften?</p>
-        <div class="input-wrapper">
-          <input type="text" class="input-field" id="water" inputmode="decimal" placeholder="0" value="" />
-          <p class="input-hint">Et glas = ca. 200 ml</p>
+        <div class="icon">💧</div>
+        <h1 class="title">Vand</h1>
+        <p class="subtitle">Hvor mange glas vand drikker du i aften?</p>
+        <div class="field-wrap">
+          <input class="field" id="water" type="text" inputmode="decimal" placeholder="0" />
+          <p class="hint">1 glas ≈ 200 ml</p>
         </div>
         <div class="btn-row">
-          <button class="btn btn-secondary btn-back" id="back-5">←</button>
-          <button class="btn btn-primary" id="next-5">Beregn!</button>
+          <button class="btn btn-ghost btn-back" id="b5">←</button>
+          <button class="btn btn-gold" id="n5">Beregn 🍺</button>
         </div>
       </div>
     </div>
 
-    <!-- Screen 6: Result -->
-    <div class="screen" id="screen-result">
+    <!-- ░ RESULT ░ -->
+    <div class="screen" id="s-result">
       <div class="screen-content">
-        <div class="screen-icon">🎉</div>
-        <div class="result-number" id="resultNumber">0</div>
-        <div class="result-label">genstande</div>
-        <div class="result-detail" id="resultDetail">Uafrundet: 0</div>
-        <button class="btn btn-primary" id="restartBtn">Prøv igen</button>
-        <p class="restart-link" id="editBtn">Ret mine svar</p>
+        <div class="icon">🎉</div>
+        <div class="result-num" id="resNum">0</div>
+        <div class="result-unit">genstande</div>
+        <div class="result-raw" id="resRaw"></div>
+        <button class="btn btn-gold" id="restartBtn">Prøv igen</button>
+        <span class="edit-link" id="editBtn">Ret mine svar</span>
       </div>
     </div>
 
   </div>
 
   <script>
-    const EXPECTED_PASSCODE = "bajerforfandenda";
-    const STORAGE_KEY = "hobby_calc_unlocked";
+  (() => {
+    const PASS = "bajerforfandenda";
+    const KEY  = "hobby_calc_unlocked";
 
-    let currentScreen = 'login';
-    const totalSteps = 5;
+    // ── Screen order ──────────────────────────────────────────────
+    const ORDER = ['login','1','2','3','4','5','result'];
+    let current = 'login';
 
-    function parseLocaleNumber(raw) {
-      const s = String(raw ?? "").trim().replace(/\s+/g, "").replace(",", ".");
-      if (s === "") return null;
+    // ── Helpers ───────────────────────────────────────────────────
+    const $ = id => document.getElementById(id);
+    const el = id => document.querySelector('#' + id);
+
+    function parseNum(v) {
+      const s = String(v ?? '').trim().replace(/\s+/g,'').replace(',','.');
+      if (!s) return null;
       const n = Number(s);
-      return Number.isFinite(n) ? n : null;
+      return isFinite(n) ? n : null;
     }
 
-    function roundHalfAwayFromZero(x) {
-      if (!Number.isFinite(x)) return NaN;
-      if (x >= 0) return Math.floor(x + 0.5);
-      return Math.ceil(x - 0.5);
+    function roundHalf(x) {
+      if (!isFinite(x)) return NaN;
+      return x >= 0 ? Math.floor(x + .5) : Math.ceil(x - .5);
     }
 
-    function calculate() {
-      const volRaw = parseLocaleNumber(document.getElementById("vol").value) || 0;
-      const ath = parseLocaleNumber(document.getElementById("ath").value) || 0;
-      const atm = parseLocaleNumber(document.getElementById("atm").value) || 0;
-      const sleep = parseLocaleNumber(document.getElementById("sleep").value) || 0;
-      const meat = parseLocaleNumber(document.getElementById("meat").value) || 0;
-      const bread = parseLocaleNumber(document.getElementById("bread").value) || 0;
-      const greens = parseLocaleNumber(document.getElementById("greens").value) || 0;
-      const fruit = parseLocaleNumber(document.getElementById("fruit").value) || 0;
-      const liquid = parseLocaleNumber(document.getElementById("liquid").value) || 0;
-      const water = parseLocaleNumber(document.getElementById("water").value) || 0;
+    // ── Calculation ───────────────────────────────────────────────
+    function calc() {
+      const vRaw   = parseNum($('vol').value)    || 0;
+      const ath    = parseNum($('ath').value)    || 0;
+      const atm    = parseNum($('atm').value)    || 0;
+      const sleep  = parseNum($('sleep').value)  || 0;
+      const meat   = parseNum($('meat').value)   || 0;
+      const bread  = parseNum($('bread').value)  || 0;
+      const greens = parseNum($('greens').value) || 0;
+      const fruit  = parseNum($('fruit').value)  || 0;
+      const liquid = parseNum($('liquid').value) || 0;
+      const water  = parseNum($('water').value)  || 0;
 
-      const volFraction = (volRaw > 1) ? (volRaw / 100) : volRaw;
+      const v = vRaw > 1 ? vRaw / 100 : vRaw;
+      if (v <= 0) return { result: 0, raw: 0 };
 
-      if (volFraction <= 0) {
-        return { result: 0, B11: 0 };
+      const D7 = .06 / v;
+      const F10 = ((ath - 9) + 9/9 - 1) + atm/60;
+      const B8 = (5 + F10) + (sleep - 7) / 2;
+      const K8 = (meat*1-1) + (bread*.2-1) + (greens*.15-1) + (fruit*.1-1) + (liquid*.2-1);
+      const B11 = (B8 + K8 + (water/3 - 1)) * D7;
+
+      return { result: roundHalf(B11), raw: Math.round(B11 * 100) / 100 };
+    }
+
+    // ── Animated number counter ───────────────────────────────────
+    function animateNumber(el, target) {
+      const duration = 900;
+      const start = performance.now();
+      const from  = 0;
+      const diff  = target - from;
+
+      function frame(now) {
+        const t  = Math.min((now - start) / duration, 1);
+        const ease = 1 - Math.pow(1 - t, 3); // ease-out-cubic
+        const cur = Math.round(from + diff * ease);
+        el.textContent = cur;
+        if (t < 1) requestAnimationFrame(frame);
       }
-
-      const B6 = 5, D6 = 0.06, F6 = 9, G6 = 0, I6 = 7;
-      const K6 = 1, L6 = 0.2, M6 = 0.15, N6 = 0.1, O6 = 0.2, Q6 = 1/3;
-
-      const D7 = D6 / volFraction;
-      const F7 = ath - F6;
-      const F8 = F6 / 9;
-      const F9 = (F7 + F8) - 1;
-      const G7 = atm / 60;
-      const G8 = G6 / 60;
-      const G9 = G7 + G8;
-      const F10 = F9 + G9;
-      const B7 = B6 + F10;
-      const I7 = sleep - I6;
-      const I8 = I7 / 2;
-      const B8 = B7 + I8;
-      const K7 = meat * K6 - 1;
-      const L7 = bread * L6 - 1;
-      const M7 = greens * M6 - 1;
-      const N7 = fruit * N6 - 1;
-      const O7 = liquid * O6 - 1;
-      const K8 = K7 + L7 + M7 + N7 + O7;
-      const B9 = B8 + K8;
-      const Q7 = water * Q6 - 1;
-      const B10 = B9 + Q7;
-      const B11 = B10 * D7;
-      const result = roundHalfAwayFromZero(B11);
-
-      return { result, B11 };
+      requestAnimationFrame(frame);
     }
 
-    function showScreen(screenId, direction = 'next') {
-      const currentEl = document.querySelector('.screen.active');
-      const nextEl = document.getElementById('screen-' + screenId);
+    // ── Screen transition ─────────────────────────────────────────
+    function go(to, dir = 'forward') {
+      if (to === current) return;
 
-      if (currentEl) {
-        currentEl.classList.remove('active');
-        currentEl.classList.add(direction === 'next' ? 'prev' : '');
-        setTimeout(() => {
-          currentEl.classList.remove('prev');
-        }, 500);
-      }
+      // Dismiss keyboard
+      document.activeElement?.blur();
 
-      if (direction === 'back') {
-        nextEl.style.transform = 'translateX(-100%)';
-        setTimeout(() => {
-          nextEl.classList.add('active');
-          nextEl.style.transform = '';
-        }, 10);
+      const fromEl = $('s-' + current);
+      const toEl   = $('s-' + to);
+
+      // Strip all state classes from both
+      [fromEl, toEl].forEach(e => {
+        e.classList.remove('slide-in','slide-out-left','slide-out-right','enter-from-left');
+      });
+
+      if (dir === 'forward') {
+        // Outgoing → slide left
+        fromEl.classList.add('slide-out-left');
+        // Incoming starts right, then slides in
+        toEl.classList.add('slide-in');
       } else {
-        nextEl.classList.add('active');
-      }
-
-      currentScreen = screenId;
-      updateProgress();
-    }
-
-    function updateProgress() {
-      const progressBar = document.getElementById('progressBar');
-      const stepIndicator = document.getElementById('stepIndicator');
-      const lockBtn = document.getElementById('lockBtn');
-
-      if (currentScreen === 'login') {
-        progressBar.style.display = 'none';
-        stepIndicator.style.display = 'none';
-        lockBtn.style.display = 'none';
-      } else {
-        progressBar.style.display = 'block';
-        stepIndicator.style.display = 'block';
-        lockBtn.style.display = 'flex';
-
-        let step = parseInt(currentScreen) || totalSteps;
-        if (currentScreen === 'result') step = totalSteps;
-
-        document.getElementById('currentStep').textContent = Math.min(step, totalSteps);
-        document.getElementById('progressFill').style.width = ((step / totalSteps) * 100) + '%';
-      }
-    }
-
-    function setUnlocked(unlocked) {
-      if (unlocked) localStorage.setItem(STORAGE_KEY, "1");
-      else localStorage.removeItem(STORAGE_KEY);
-
-      if (unlocked) {
-        showScreen('1');
-      } else {
-        // Reset all screens
-        document.querySelectorAll('.screen').forEach(s => {
-          s.classList.remove('active', 'prev');
+        // Outgoing → slide right
+        fromEl.classList.add('slide-out-right');
+        // Incoming comes from the left
+        toEl.classList.add('enter-from-left');
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            toEl.classList.remove('enter-from-left');
+            toEl.classList.add('slide-in');
+          });
         });
-        document.getElementById('screen-login').classList.add('active');
-        currentScreen = 'login';
-        updateProgress();
+      }
+
+      current = to;
+      updateChrome();
+
+      // Auto-focus first input on new screen after transition
+      setTimeout(() => {
+        const inp = toEl.querySelector('input');
+        if (inp && to !== 'login' && to !== 'result') inp.focus();
+      }, 420);
+    }
+
+    // ── Dots + chrome ─────────────────────────────────────────────
+    function updateChrome() {
+      const dotsEl  = $('dots');
+      const lockBtn = $('lockBtn');
+      const hint    = $('swipeHint');
+      const isApp   = (current !== 'login' && current !== 'result');
+      const stepNum = parseInt(current);
+
+      dotsEl.classList.toggle('visible', isApp);
+      lockBtn.classList.toggle('visible', current !== 'login');
+
+      // Show swipe hint briefly on first app screen
+      if (current === '1') {
+        hint.classList.add('show');
+        setTimeout(() => hint.classList.remove('show'), 2200);
+      }
+
+      if (isApp) {
+        document.querySelectorAll('.dot').forEach(d => {
+          const s = parseInt(d.dataset.step);
+          d.classList.remove('active','done');
+          if (s === stepNum) d.classList.add('active');
+          else if (s < stepNum) d.classList.add('done');
+        });
       }
     }
 
+    // ── Swipe gesture ─────────────────────────────────────────────
+    let touchX0 = null, touchY0 = null, swiping = false;
+
+    document.addEventListener('touchstart', e => {
+      touchX0 = e.touches[0].clientX;
+      touchY0 = e.touches[0].clientY;
+      swiping = false;
+    }, { passive: true });
+
+    document.addEventListener('touchmove', e => {
+      if (touchX0 === null) return;
+      const dx = e.touches[0].clientX - touchX0;
+      const dy = e.touches[0].clientY - touchY0;
+      if (!swiping && Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 8) {
+        swiping = true;
+      }
+    }, { passive: true });
+
+    document.addEventListener('touchend', e => {
+      if (!swiping || touchX0 === null) { touchX0 = null; return; }
+      const dx = e.changedTouches[0].clientX - touchX0;
+      touchX0 = null; swiping = false;
+
+      if (current === 'login' || current === 'result') return;
+      // Only swipe if not focused in an input
+      if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
+
+      if (dx < -50) {
+        // Swipe left → next
+        navigate('forward');
+      } else if (dx > 50) {
+        // Swipe right → back
+        navigate('back');
+      }
+    });
+
+    function navigate(dir) {
+      const idx = ORDER.indexOf(current);
+      if (dir === 'forward' && idx < ORDER.length - 2) go(ORDER[idx + 1], 'forward');
+      if (dir === 'back'    && idx > 1)                go(ORDER[idx - 1], 'back');
+    }
+
+    // ── Auth ──────────────────────────────────────────────────────
     function tryUnlock() {
-      const pw = document.getElementById("pw").value;
-      const ok = pw === EXPECTED_PASSCODE;
-      const errEl = document.getElementById("pwErr");
-
-      errEl.classList.toggle('show', !ok);
-
-      if (ok) {
-        const snd = document.getElementById("unlockSound");
-        if (snd) {
-          try {
-            snd.loop = true;
-            snd.currentTime = 0;
-            snd.play();
-          } catch (e) {}
-        }
-        setUnlocked(true);
-      }
+      const ok = $('pw').value === PASS;
+      $('pwErr').classList.toggle('show', !ok);
+      if (!ok) return;
+      try {
+        const s = $('unlockSound');
+        s.loop = true; s.currentTime = 0; s.play();
+      } catch(_) {}
+      localStorage.setItem(KEY, '1');
+      go('1', 'forward');
     }
 
+    function lock() {
+      localStorage.removeItem(KEY);
+      // Reset all screens
+      ORDER.forEach(id => {
+        const e = $('s-' + id);
+        if (!e) return;
+        e.classList.remove('slide-in','slide-out-left','slide-out-right','enter-from-left');
+      });
+      $('s-login').classList.add('slide-in');
+      current = 'login';
+      updateChrome();
+      $('pw').value = '';
+    }
+
+    // ── Result ────────────────────────────────────────────────────
     function showResult() {
-      const r = calculate();
-      document.getElementById('resultNumber').textContent = r.result;
-      document.getElementById('resultDetail').textContent = 'Uafrundet: ' + (Math.round(r.B11 * 100) / 100);
-      showScreen('result');
+      const r = calc();
+      go('result', 'forward');
+      setTimeout(() => {
+        animateNumber($('resNum'), r.result);
+        $('resRaw').textContent = 'Uafrundet: ' + r.raw;
+      }, 200);
     }
 
-    // Event listeners
-    document.getElementById('unlockBtn').addEventListener('click', tryUnlock);
-    document.getElementById('pw').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') tryUnlock();
-    });
+    // ── Wire up buttons ───────────────────────────────────────────
+    $('unlockBtn').onclick = tryUnlock;
+    $('pw').onkeydown = e => { if (e.key === 'Enter') tryUnlock(); };
+    $('lockBtn').onclick = lock;
 
-    document.getElementById('lockBtn').addEventListener('click', () => setUnlocked(false));
+    $('n1').onclick = () => go('2','forward');
+    $('n2').onclick = () => go('3','forward');
+    $('n3').onclick = () => go('4','forward');
+    $('n4').onclick = () => go('5','forward');
+    $('n5').onclick = () => showResult();
 
-    // Navigation buttons
-    document.getElementById('next-1').addEventListener('click', () => showScreen('2'));
-    document.getElementById('next-2').addEventListener('click', () => showScreen('3'));
-    document.getElementById('next-3').addEventListener('click', () => showScreen('4'));
-    document.getElementById('next-4').addEventListener('click', () => showScreen('5'));
-    document.getElementById('next-5').addEventListener('click', () => showResult());
+    $('b2').onclick = () => go('1','back');
+    $('b3').onclick = () => go('2','back');
+    $('b4').onclick = () => go('3','back');
+    $('b5').onclick = () => go('4','back');
 
-    document.getElementById('back-2').addEventListener('click', () => showScreen('1', 'back'));
-    document.getElementById('back-3').addEventListener('click', () => showScreen('2', 'back'));
-    document.getElementById('back-4').addEventListener('click', () => showScreen('3', 'back'));
-    document.getElementById('back-5').addEventListener('click', () => showScreen('4', 'back'));
-
-    document.getElementById('restartBtn').addEventListener('click', () => {
-      // Clear all inputs
-      ['vol','ath','atm','sleep','meat','bread','greens','fruit','liquid','water'].forEach(id => {
-        document.getElementById(id).value = '';
-      });
-      showScreen('1', 'back');
-    });
-
-    document.getElementById('editBtn').addEventListener('click', () => {
-      showScreen('1', 'back');
-    });
-
-    // Allow Enter key to go to next screen on inputs
-    const inputNavigation = {
-      'vol': 'next-1',
-      'atm': 'next-2',
-      'sleep': 'next-3',
-      'water': 'next-5'
+    $('restartBtn').onclick = () => {
+      ['vol','ath','atm','sleep','meat','bread','greens','fruit','liquid','water']
+        .forEach(id => $('s-result') && ($( id ).value = ''));
+      go('1','back');
     };
+    $('editBtn').onclick = () => go('5','back');
 
-    Object.keys(inputNavigation).forEach(inputId => {
-      document.getElementById(inputId).addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          document.getElementById(inputNavigation[inputId]).click();
-        }
-      });
-    });
+    // Enter-key on single-field screens
+    $('vol').onkeydown   = e => { if (e.key==='Enter') $('n1').click(); };
+    $('sleep').onkeydown = e => { if (e.key==='Enter') $('n3').click(); };
+    $('water').onkeydown = e => { if (e.key==='Enter') $('n5').click(); };
 
-    // Auto-unlock if previously unlocked
-    if (localStorage.getItem(STORAGE_KEY) === "1") {
-      document.getElementById('screen-login').classList.remove('active');
-      document.getElementById('screen-1').classList.add('active');
-      currentScreen = '1';
-      updateProgress();
+    // ── Auto-unlock ───────────────────────────────────────────────
+    if (localStorage.getItem(KEY) === '1') {
+      $('s-login').classList.remove('slide-in');
+      $('s-1').classList.add('slide-in');
+      current = '1';
+      updateChrome();
     }
+  })();
   </script>
 </body>
 </html>
