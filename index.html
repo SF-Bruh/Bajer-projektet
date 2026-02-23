@@ -432,20 +432,29 @@
       background: linear-gradient(135deg, rgba(212,175,55,.15) 0%, rgba(212,175,55,.05) 100%);
       border: 1.5px solid var(--border);
       border-radius: 16px;
-      padding: 16px 24px;
+      padding: 18px 24px;
       margin-bottom: 24px;
       width: 100%;
     }
-    .tier-name {
-      font-size: 16px;
+    .tier-label {
+      font-size: 11px;
       font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .tier-name {
+      font-size: 20px;
+      font-weight: 700;
       color: var(--gold-light);
-      margin-bottom: 4px;
+      margin-bottom: 8px;
     }
     .tier-desc {
       font-size: 14px;
+      font-style: italic;
       color: var(--text-sub);
-      line-height: 1.45;
+      line-height: 1.5;
     }
 
     .edit-link {
@@ -819,6 +828,7 @@
         <div class="result-unit">genstande</div>
         <div class="result-raw" id="resRaw"></div>
         <div class="tier-badge">
+          <div class="tier-label">Bajer Score:</div>
           <div class="tier-name" id="tierName">-</div>
           <div class="tier-desc" id="tierDesc">-</div>
         </div>
