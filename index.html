@@ -457,6 +457,35 @@
       line-height: 1.5;
     }
 
+    .result-btn-row {
+      display: flex;
+      gap: 12px;
+    }
+    .result-btn-row .btn-gold {
+      flex: 1;
+    }
+    .btn-share {
+      flex: none;
+      width: 60px;
+      padding: 0;
+      background: var(--glass);
+      border: 2px solid var(--glass-border);
+      color: var(--text-sub);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all .2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-share:active {
+      background: rgba(212,175,55,.15);
+      border-color: var(--gold);
+      color: var(--gold);
+      transform: scale(.95);
+    }
+
     .edit-link {
       margin-top: 20px;
       font-size: 15px;
@@ -834,7 +863,16 @@
         </div>
       </div>
       <div class="screen-bottom">
-        <button class="btn btn-gold" id="restartBtn">Prøv igen</button>
+        <div class="result-btn-row">
+          <button class="btn btn-gold" id="restartBtn">Prøv igen</button>
+          <button class="btn btn-share" id="shareBtn" aria-label="Del resultat">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+              <polyline points="16 6 12 2 8 6"/>
+              <line x1="12" y1="2" x2="12" y2="15"/>
+            </svg>
+          </button>
+        </div>
         <div class="edit-link" id="editBtn">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
@@ -1208,6 +1246,26 @@
     $('b3').onclick = () => go('2','back');
     $('b4').onclick = () => go('3','back');
     $('b5').onclick = () => go('4','back');
+
+    $('shareBtn').onclick = () => {
+      haptic();
+      const icon = $('resultIcon').textContent;
+      const num  = $('resNum').textContent;
+      const name = $('tierName').textContent;
+      const desc = $('tierDesc').textContent;
+      const text = `${icon} Bajer Score: ${name}\n${num} genstande\n"${desc}"`;
+      if (navigator.share) {
+        navigator.share({ text }).catch(() => {});
+      } else {
+        navigator.clipboard?.writeText(text).then(() => {
+          const btn = $('shareBtn');
+          btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>`;
+          setTimeout(() => {
+            btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>`;
+          }, 2000);
+        });
+      }
+    };
 
     $('restartBtn').onclick = () => {
       haptic();
