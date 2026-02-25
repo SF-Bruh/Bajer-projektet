@@ -310,6 +310,76 @@
 
     .small-field { font-size: 24px !important; padding: 14px 16px !important; }
 
+    /* ── Selection cards (gender / weight) ── */
+    .pick-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%; }
+    .pick-list   { display: flex; flex-direction: column; gap: 12px; width: 100%; }
+
+    .pick-card {
+      background: var(--glass);
+      border: 2px solid var(--border);
+      border-radius: 20px;
+      padding: 22px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all .2s cubic-bezier(.4,0,.2,1);
+      -webkit-tap-highlight-color: transparent;
+      position: relative;
+      overflow: hidden;
+    }
+    .pick-card:active {
+      transform: scale(.96);
+      border-color: var(--gold);
+      background: rgba(212,175,55,.12);
+    }
+    .pick-card.selected {
+      border-color: var(--gold);
+      background: rgba(212,175,55,.14);
+      box-shadow: 0 0 0 4px rgba(212,175,55,.12);
+    }
+    .pick-card-icon { font-size: 32px; margin-bottom: 10px; line-height: 1; }
+    .pick-card-label {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .pick-card-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+    /* Horizontal list variant */
+    .pick-list .pick-card {
+      display: flex;
+      align-items: center;
+      text-align: left;
+      padding: 18px 20px;
+      gap: 16px;
+      border-radius: 16px;
+    }
+    .pick-list .pick-card-icon { font-size: 26px; margin-bottom: 0; flex-shrink: 0; }
+    .pick-list .pick-card-text { flex: 1; }
+    .pick-list .pick-card-check {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      flex-shrink: 0;
+      transition: all .2s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .pick-list .pick-card.selected .pick-card-check {
+      background: var(--gold);
+      border-color: var(--gold);
+    }
+    .pick-list .pick-card.selected .pick-card-check::after {
+      content: '';
+      width: 6px; height: 10px;
+      border: 2px solid var(--bg);
+      border-top: none; border-left: none;
+      transform: rotate(45deg) translate(-1px,-1px);
+      display: block;
+    }
+
     /* ── Buttons ── */
     .btn {
       font-family: 'Inter', sans-serif;
@@ -645,6 +715,8 @@
   <div class="top-bar" id="topBar">
     <div class="spacer"></div>
     <div class="dots" id="dots">
+      <div class="dot" data-step="gender"></div>
+      <div class="dot" data-step="weight"></div>
       <div class="dot" data-step="1"></div>
       <div class="dot" data-step="2"></div>
       <div class="dot" data-step="3"></div>
@@ -730,6 +802,85 @@
       </div>
       <div class="screen-bottom">
         <button class="btn btn-gold" id="unlockBtn">Lås op</button>
+      </div>
+    </div>
+
+    <!-- GENDER -->
+    <div class="screen" id="s-gender">
+      <div class="screen-top">
+        <div class="icon">👤</div>
+        <h1 class="title">Hvilket køn er du?</h1>
+        <p class="subtitle">Det påvirker dit anbefalede antal genstande</p>
+        <div class="pick-grid-2">
+          <div class="pick-card" id="pick-mand" data-gender="mand">
+            <div class="pick-card-icon">🧔</div>
+            <div class="pick-card-label">Mand</div>
+          </div>
+          <div class="pick-card" id="pick-kvinde" data-gender="kvinde">
+            <div class="pick-card-icon">👩</div>
+            <div class="pick-card-label">Kvinde</div>
+          </div>
+        </div>
+      </div>
+      <div class="screen-bottom">
+        <button class="btn btn-gold" id="n-gender" disabled style="opacity:.4">Næste</button>
+      </div>
+    </div>
+
+    <!-- WEIGHT -->
+    <div class="screen" id="s-weight">
+      <div class="screen-top">
+        <div class="icon">⚖️</div>
+        <h1 class="title">Hvad vejer du?</h1>
+        <p class="subtitle">Vælg den kategori der passer bedst</p>
+        <div class="pick-list" id="weightList">
+          <div class="pick-card" data-weight="0.80">
+            <div class="pick-card-icon">🪶</div>
+            <div class="pick-card-text">
+              <div class="pick-card-label">55–65 kg</div>
+              <div class="pick-card-sub">Mærker alkohol hurtigt</div>
+            </div>
+            <div class="pick-card-check"></div>
+          </div>
+          <div class="pick-card" data-weight="1.00">
+            <div class="pick-card-icon">🧍</div>
+            <div class="pick-card-text">
+              <div class="pick-card-label">70–80 kg</div>
+              <div class="pick-card-sub">Gennemsnitlig tærskel</div>
+            </div>
+            <div class="pick-card-check"></div>
+          </div>
+          <div class="pick-card" data-weight="1.15">
+            <div class="pick-card-icon">💪</div>
+            <div class="pick-card-text">
+              <div class="pick-card-label">80–90 kg</div>
+              <div class="pick-card-sub">Over gennemsnittet</div>
+            </div>
+            <div class="pick-card-check"></div>
+          </div>
+          <div class="pick-card" data-weight="1.30">
+            <div class="pick-card-icon">🏋️</div>
+            <div class="pick-card-text">
+              <div class="pick-card-label">100–115 kg</div>
+              <div class="pick-card-sub">Høj kropsvægt</div>
+            </div>
+            <div class="pick-card-check"></div>
+          </div>
+          <div class="pick-card" data-weight="1.50">
+            <div class="pick-card-icon">🦣</div>
+            <div class="pick-card-text">
+              <div class="pick-card-label">115+ kg</div>
+              <div class="pick-card-sub">Meget høj kropsvægt</div>
+            </div>
+            <div class="pick-card-check"></div>
+          </div>
+        </div>
+      </div>
+      <div class="screen-bottom">
+        <div class="btn-row">
+          <button class="btn btn-ghost btn-back" id="b-weight">‹</button>
+          <button class="btn btn-gold" id="n-weight" disabled style="opacity:.4">Næste</button>
+        </div>
       </div>
     </div>
 
@@ -889,9 +1040,12 @@
   (() => {
     const PASS = "bajerforfandenda";
     const KEY  = "hobby_calc_unlocked";
-    const ORDER = ['login','1','2','3','4','5','result'];
+    const ORDER = ['login','gender','weight','1','2','3','4','5','result'];
     let current = 'login';
     let modalDragY = 0;
+    let selectedGender = null;   // 'mand' | 'kvinde'
+    let selectedWeight = 1.00;   // multiplier
+    let weightChosen   = false;
 
     const $ = id => document.getElementById(id);
 
@@ -948,7 +1102,7 @@
       const F10 = ((ath - 9) + 1 - 1) + atm/60;
       const B8 = (5 + F10) + (sleep - 7) / 2;
       const K8 = (meat-1) + (bread*.2-1) + (greens*.15-1) + (fruit*.1-1) + (liquid*.2-1);
-      const B11 = (B8 + K8 + (water/3 - 1)) * D7;
+      const B11 = (B8 + K8 + (water/3 - 1)) * D7 * selectedWeight;
 
       return { result: roundHalf(B11), raw: Math.round(B11 * 100) / 100 };
     }
@@ -1023,22 +1177,22 @@
     // ── Chrome (dots) ─────────────────────────────────────────────
     function updateChrome() {
       const topBar = $('topBar');
-      const hint = $('swipeHint');
-      const stepNum = parseInt(current);
+      const hint   = $('swipeHint');
+      const curIdx = ORDER.indexOf(current);  // position in ORDER
 
       topBar.classList.toggle('visible', current !== 'login');
 
-      if (current === '1') {
+      if (current === 'gender') {
         hint.classList.add('show');
         setTimeout(() => hint.classList.remove('show'), 2500);
       }
 
       document.querySelectorAll('.dot').forEach(d => {
-        const s = parseInt(d.dataset.step);
+        const dotIdx = ORDER.indexOf(d.dataset.step);
         d.classList.remove('active','done');
         if (current === 'result') d.classList.add('done');
-        else if (s === stepNum) d.classList.add('active');
-        else if (s < stepNum) d.classList.add('done');
+        else if (dotIdx === curIdx)  d.classList.add('active');
+        else if (dotIdx < curIdx)    d.classList.add('done');
       });
     }
 
@@ -1147,7 +1301,7 @@
         s.loop = true; s.currentTime = 0; s.play();
       } catch(_) {}
       localStorage.setItem(KEY, '1');
-      go('1', 'forward');
+      go('gender', 'forward');
     }
     function lock() {
       haptic();
@@ -1156,6 +1310,11 @@
         const e = $('s-' + id);
         if (e) e.classList.remove('slide-in','slide-out-left','slide-out-right','enter-from-left');
       });
+      selectedGender = null; selectedWeight = 1.00; weightChosen = false;
+      document.querySelectorAll('[data-gender]').forEach(c => c.classList.remove('selected'));
+      document.querySelectorAll('[data-weight]').forEach(c => c.classList.remove('selected'));
+      $('n-gender').disabled = true; $('n-gender').style.opacity = '.4';
+      $('n-weight').disabled = true; $('n-weight').style.opacity = '.4';
       $('s-login').classList.add('slide-in');
       current = 'login';
       updateChrome();
@@ -1236,6 +1395,57 @@
       return anyInvalid;
     }
 
+    // ── Gender selection ──────────────────────────────────────────
+    document.querySelectorAll('[data-gender]').forEach(card => {
+      card.addEventListener('click', () => {
+        haptic();
+        selectedGender = card.dataset.gender;
+        document.querySelectorAll('[data-gender]').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        const btn = $('n-gender');
+        btn.disabled = false;
+        btn.style.opacity = '1';
+      });
+    });
+
+    $('n-gender').onclick = () => {
+      if (!selectedGender) return;
+      haptic();
+      if (selectedGender === 'kvinde') {
+        // Special path: show result 20 with Kvinde tier
+        selectedWeight = 1.00;
+        const tier = { icon: '🎪', name: 'Dameteltet på dølle', desc: 'Gi\' den gas!' };
+        go('result', 'forward');
+        setTimeout(() => {
+          confetti();
+          animateNumber($('resNum'), 20);
+          $('resRaw').textContent = '';
+          $('resultIcon').textContent = tier.icon;
+          $('tierName').textContent = tier.name;
+          $('tierDesc').textContent = tier.desc;
+        }, 250);
+      } else {
+        go('weight', 'forward');
+      }
+    };
+
+    // ── Weight selection ──────────────────────────────────────────
+    document.querySelectorAll('[data-weight]').forEach(card => {
+      card.addEventListener('click', () => {
+        haptic();
+        selectedWeight = parseFloat(card.dataset.weight);
+        weightChosen = true;
+        document.querySelectorAll('[data-weight]').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        const btn = $('n-weight');
+        btn.disabled = false;
+        btn.style.opacity = '1';
+      });
+    });
+
+    $('b-weight').onclick = () => go('gender', 'back');
+    $('n-weight').onclick = () => { if (weightChosen) go('1', 'forward'); };
+
     $('n1').onclick = () => { if (!invalidate('vol')) go('2','forward'); };
     $('n2').onclick = () => { if (!invalidate('ath','atm')) go('3','forward'); };
     $('n3').onclick = () => { if (!invalidate('sleep')) go('4','forward'); };
@@ -1270,7 +1480,13 @@
     $('restartBtn').onclick = () => {
       haptic();
       ['vol','ath','atm','sleep','meat','bread','greens','fruit','liquid','water'].forEach(id => $(id).value = '');
-      go('1','back');
+      // Reset gender + weight
+      selectedGender = null; selectedWeight = 1.00; weightChosen = false;
+      document.querySelectorAll('[data-gender]').forEach(c => c.classList.remove('selected'));
+      document.querySelectorAll('[data-weight]').forEach(c => c.classList.remove('selected'));
+      $('n-gender').disabled = true; $('n-gender').style.opacity = '.4';
+      $('n-weight').disabled = true; $('n-weight').style.opacity = '.4';
+      go('gender','back');
     };
     $('editBtn').onclick = openModal;
 
@@ -1285,8 +1501,8 @@
     // ── Auto-unlock ───────────────────────────────────────────────
     if (localStorage.getItem(KEY) === '1') {
       $('s-login').classList.remove('slide-in');
-      $('s-1').classList.add('slide-in');
-      current = '1';
+      $('s-gender').classList.add('slide-in');
+      current = 'gender';
       updateChrome();
     }
   })();
