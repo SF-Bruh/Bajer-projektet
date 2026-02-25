@@ -268,6 +268,21 @@
     }
     .hint { font-size: 13px; color: var(--text-muted); margin-top: 12px; }
 
+    .food-help {
+      margin-top: 16px;
+      padding: 14px 16px;
+      background: rgba(212,175,55,.08);
+      border: 1px solid rgba(212,175,55,.2);
+      border-radius: 12px;
+      font-size: 12px;
+      color: var(--text-sub);
+      line-height: 1.6;
+    }
+    .food-help strong {
+      color: var(--gold-light);
+      font-weight: 600;
+    }
+
     .two-col { display: flex; gap: 16px; width: 100%; }
     .two-col .field-wrap { flex: 1; margin-bottom: 0; }
     .two-col .field { font-size: 28px; padding: 18px 16px; }
@@ -838,7 +853,6 @@
             <div class="pick-card-icon">🪶</div>
             <div class="pick-card-text">
               <div class="pick-card-label">55–65 kg</div>
-              <div class="pick-card-sub">Mærker alkohol hurtigt</div>
             </div>
             <div class="pick-card-check"></div>
           </div>
@@ -846,7 +860,6 @@
             <div class="pick-card-icon">🧍</div>
             <div class="pick-card-text">
               <div class="pick-card-label">70–80 kg</div>
-              <div class="pick-card-sub">Gennemsnitlig tærskel</div>
             </div>
             <div class="pick-card-check"></div>
           </div>
@@ -854,7 +867,6 @@
             <div class="pick-card-icon">💪</div>
             <div class="pick-card-text">
               <div class="pick-card-label">80–90 kg</div>
-              <div class="pick-card-sub">Over gennemsnittet</div>
             </div>
             <div class="pick-card-check"></div>
           </div>
@@ -862,7 +874,6 @@
             <div class="pick-card-icon">🏋️</div>
             <div class="pick-card-text">
               <div class="pick-card-label">100–115 kg</div>
-              <div class="pick-card-sub">Høj kropsvægt</div>
             </div>
             <div class="pick-card-check"></div>
           </div>
@@ -870,7 +881,6 @@
             <div class="pick-card-icon">🦣</div>
             <div class="pick-card-text">
               <div class="pick-card-label">115+ kg</div>
-              <div class="pick-card-sub">Meget høj kropsvægt</div>
             </div>
             <div class="pick-card-check"></div>
           </div>
@@ -971,6 +981,10 @@
         <div class="field-wrap">
           <label class="field-label">Flydende kost</label>
           <input class="field small-field" id="liquid" type="text" inputmode="decimal" placeholder="0" enterkeyhint="next" />
+        </div>
+        <div class="food-help">
+          <strong>Hvad tæller som 1?</strong><br>
+          Kød: 50g · Brød: 1 stk · Grønt: 50g · Frugt: 1 stk · Flydende: 100g
         </div>
       </div>
       <div class="screen-bottom">
