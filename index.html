@@ -951,7 +951,7 @@
         </div>
         <div class="food-help">
           <strong>Hvad tæller som 1?</strong><br>
-          Kød: 50g · Brød: 1 stk · Grønt: 50g · Frugt: 1 stk · Flydende: 100g
+          Kød: 100g · Brød: 1 stk · Grønt: 50g · Frugt: 1 stk · Flydende: 100g
         </div>
       </div>
       <div class="screen-bottom">
@@ -1083,8 +1083,9 @@
       const B8 = (5 + F10) + (sleep - 7) / 2;
       const K8 = (meat-1) + (bread*.2-1) + (greens*.15-1) + (fruit*.1-1) + (liquid*.2-1);
       const B11 = (B8 + K8 + (water/3 - 1)) * D7 * selectedWeight;
+      const capped = Math.min(B11, 30);
 
-      return { result: roundHalf(B11), raw: Math.round(B11 * 100) / 100 };
+      return { result: roundHalf(capped), raw: Math.round(capped * 100) / 100 };
     }
 
     // ── Confetti burst ────────────────────────────────────────────
