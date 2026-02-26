@@ -847,49 +847,16 @@
       <div class="screen-top">
         <div class="icon">⚖️</div>
         <h1 class="title">Hvad vejer du?</h1>
-        <p class="subtitle">Vælg den kategori der passer bedst</p>
-        <div class="pick-list" id="weightList">
-          <div class="pick-card" data-weight="0.80">
-            <div class="pick-card-icon">🪶</div>
-            <div class="pick-card-text">
-              <div class="pick-card-label">55–65 kg</div>
-            </div>
-            <div class="pick-card-check"></div>
-          </div>
-          <div class="pick-card" data-weight="1.00">
-            <div class="pick-card-icon">🧍</div>
-            <div class="pick-card-text">
-              <div class="pick-card-label">70–80 kg</div>
-            </div>
-            <div class="pick-card-check"></div>
-          </div>
-          <div class="pick-card" data-weight="1.15">
-            <div class="pick-card-icon">💪</div>
-            <div class="pick-card-text">
-              <div class="pick-card-label">80–90 kg</div>
-            </div>
-            <div class="pick-card-check"></div>
-          </div>
-          <div class="pick-card" data-weight="1.30">
-            <div class="pick-card-icon">🏋️</div>
-            <div class="pick-card-text">
-              <div class="pick-card-label">100–115 kg</div>
-            </div>
-            <div class="pick-card-check"></div>
-          </div>
-          <div class="pick-card" data-weight="1.50">
-            <div class="pick-card-icon">🦣</div>
-            <div class="pick-card-text">
-              <div class="pick-card-label">115+ kg</div>
-            </div>
-            <div class="pick-card-check"></div>
-          </div>
+        <p class="subtitle">Indtast din vægt i kilogram</p>
+        <div class="field-wrap">
+          <input class="field" id="weightInput" type="text" inputmode="decimal" placeholder="75" enterkeyhint="next" />
+          <p class="hint">kg</p>
         </div>
       </div>
       <div class="screen-bottom">
         <div class="btn-row">
           <button class="btn btn-ghost btn-back" id="b-weight">‹</button>
-          <button class="btn btn-gold" id="n-weight" disabled style="opacity:.4">Næste</button>
+          <button class="btn btn-gold" id="n-weight">Næste</button>
         </div>
       </div>
     </div>
@@ -1059,7 +1026,6 @@
     let modalDragY = 0;
     let selectedGender = null;   // 'mand' | 'kvinde'
     let selectedWeight = 1.00;   // multiplier
-    let weightChosen   = false;
 
     const $ = id => document.getElementById(id);
 
@@ -1305,15 +1271,27 @@
     });
 
     // ── Auth ──────────────────────────────────────────────────────
+    function playUnlockSound() {
+      const s = $('unlockSound');
+      if (!s) return;
+      s.loop = true;
+      s.currentTime = 0;
+      // .play() returns a Promise - must use .catch() not try/catch
+      const playPromise = s.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          // iOS often needs the audio to be triggered again after load
+          s.load();
+          s.play().catch(() => {});
+        });
+      }
+    }
     function tryUnlock() {
       const ok = $('pw').value === PASS;
       $('pwErr').classList.toggle('show', !ok);
       if (!ok) { haptic('heavy'); return; }
       haptic();
-      try {
-        const s = $('unlockSound');
-        s.loop = true; s.currentTime = 0; s.play();
-      } catch(_) {}
+      playUnlockSound();
       localStorage.setItem(KEY, '1');
       go('gender', 'forward');
     }
@@ -1324,11 +1302,10 @@
         const e = $('s-' + id);
         if (e) e.classList.remove('slide-in','slide-out-left','slide-out-right','enter-from-left');
       });
-      selectedGender = null; selectedWeight = 1.00; weightChosen = false;
+      selectedGender = null; selectedWeight = 1.00;
       document.querySelectorAll('[data-gender]').forEach(c => c.classList.remove('selected'));
-      document.querySelectorAll('[data-weight]').forEach(c => c.classList.remove('selected'));
       $('n-gender').disabled = true; $('n-gender').style.opacity = '.4';
-      $('n-weight').disabled = true; $('n-weight').style.opacity = '.4';
+      $('weightInput').value = '';
       $('s-login').classList.add('slide-in');
       current = 'login';
       updateChrome();
@@ -1443,22 +1420,21 @@
       }
     };
 
-    // ── Weight selection ──────────────────────────────────────────
-    document.querySelectorAll('[data-weight]').forEach(card => {
-      card.addEventListener('click', () => {
-        haptic();
-        selectedWeight = parseFloat(card.dataset.weight);
-        weightChosen = true;
-        document.querySelectorAll('[data-weight]').forEach(c => c.classList.remove('selected'));
-        card.classList.add('selected');
-        const btn = $('n-weight');
-        btn.disabled = false;
-        btn.style.opacity = '1';
-      });
-    });
+    // ── Weight input ──────────────────────────────────────────
+    function getWeightMultiplier(kg) {
+      // Multiplier based on body weight: lighter = lower tolerance, heavier = higher
+      // Base: 80kg = 1.0, scales linearly, clamped between 0.70 and 1.50
+      const mult = kg / 80;
+      return Math.max(0.70, Math.min(1.50, mult));
+    }
 
     $('b-weight').onclick = () => go('gender', 'back');
-    $('n-weight').onclick = () => { if (weightChosen) go('1', 'forward'); };
+    $('n-weight').onclick = () => {
+      if (invalidate('weightInput')) return;
+      const kg = parseNum($('weightInput').value);
+      selectedWeight = getWeightMultiplier(kg);
+      go('1', 'forward');
+    };
 
     $('n1').onclick = () => { if (!invalidate('vol')) go('2','forward'); };
     $('n2').onclick = () => { if (!invalidate('ath','atm')) go('3','forward'); };
@@ -1493,18 +1469,17 @@
 
     $('restartBtn').onclick = () => {
       haptic();
-      ['vol','ath','atm','sleep','meat','bread','greens','fruit','liquid','water'].forEach(id => $(id).value = '');
+      ['vol','ath','atm','sleep','meat','bread','greens','fruit','liquid','water','weightInput'].forEach(id => $(id).value = '');
       // Reset gender + weight
-      selectedGender = null; selectedWeight = 1.00; weightChosen = false;
+      selectedGender = null; selectedWeight = 1.00;
       document.querySelectorAll('[data-gender]').forEach(c => c.classList.remove('selected'));
-      document.querySelectorAll('[data-weight]').forEach(c => c.classList.remove('selected'));
       $('n-gender').disabled = true; $('n-gender').style.opacity = '.4';
-      $('n-weight').disabled = true; $('n-weight').style.opacity = '.4';
       go('gender','back');
     };
     $('editBtn').onclick = openModal;
 
     // Enter key navigation
+    $('weightInput').onkeydown = e => { if (e.key==='Enter') { e.preventDefault(); $('n-weight').click(); } };
     $('vol').onkeydown    = e => { if (e.key==='Enter') { e.preventDefault(); $('n1').click(); } };
     $('ath').onkeydown    = e => { if (e.key==='Enter') { e.preventDefault(); $('atm').focus(); } };
     $('atm').onkeydown    = e => { if (e.key==='Enter') { e.preventDefault(); $('n2').click(); } };
