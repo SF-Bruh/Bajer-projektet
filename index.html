@@ -512,6 +512,170 @@
       100% { opacity: 0; transform: translate(var(--tx), var(--ty)) rotate(720deg) scale(0); }
     }
 
+    /* Fake malware overlay */
+    .malware-overlay {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      z-index: 9999;
+      display: none;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .malware-overlay.show { display: block; animation: malwareFlash .1s infinite; }
+    @keyframes malwareFlash {
+      0%, 100% { background: #1a0000; }
+      50% { background: #300000; }
+    }
+    .malware-screen {
+      min-height: 100%;
+      padding: 20px;
+      padding-top: calc(20px + env(safe-area-inset-top));
+      padding-bottom: calc(40px + env(safe-area-inset-bottom));
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+    .malware-header { text-align: center; }
+    .malware-icon { font-size: 60px; animation: shake .3s infinite; }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-8px) rotate(-5deg); }
+      75% { transform: translateX(8px) rotate(5deg); }
+    }
+    .malware-title {
+      font-size: 36px;
+      font-weight: 900;
+      color: #ff0000;
+      text-shadow: 0 0 20px #ff0000, 0 0 40px #ff0000;
+      animation: pulse 0.5s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+    .malware-alert {
+      background: linear-gradient(135deg, #1a0000, #330000);
+      border: 3px solid #ff0000;
+      border-radius: 16px;
+      padding: 20px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 0 30px rgba(255,0,0,.5), inset 0 0 30px rgba(255,0,0,.1);
+    }
+    .malware-virus {
+      text-align: center;
+      font-size: 24px;
+      font-weight: 700;
+      color: #ff3333;
+      margin-bottom: 16px;
+      animation: blink .3s infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    .blink { animation: blink .3s infinite; color: #ff6666; font-weight: 700; }
+    .malware-text {
+      color: #ffcccc;
+      font-size: 14px;
+      line-height: 1.6;
+      text-align: center;
+    }
+    .malware-countdown {
+      font-size: 48px;
+      font-weight: 900;
+      color: #ff0000;
+      text-align: center;
+      font-family: monospace;
+      text-shadow: 0 0 20px #ff0000;
+      margin: 12px 0;
+    }
+    .malware-progress {
+      height: 20px;
+      background: #330000;
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 16px 0;
+      border: 2px solid #ff0000;
+    }
+    .malware-progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #ff0000, #ff6600, #ff0000);
+      background-size: 200% 100%;
+      animation: progressAnim 1s linear infinite;
+      transition: width .3s;
+    }
+    @keyframes progressAnim {
+      0% { background-position: 0% 0%; }
+      100% { background-position: 200% 0%; }
+    }
+    .malware-details { margin-top: 12px; }
+    .malware-line {
+      display: flex;
+      justify-content: space-between;
+      color: #ff9999;
+      font-size: 13px;
+      padding: 6px 0;
+      border-bottom: 1px solid #440000;
+    }
+    .malware-pct { color: #ff0000; font-weight: 700; font-family: monospace; }
+    .malware-popup {
+      position: fixed;
+      background: linear-gradient(135deg, #220000, #440000);
+      border: 2px solid #ff0000;
+      border-radius: 12px;
+      padding: 16px 20px;
+      box-shadow: 0 0 30px rgba(255,0,0,.7);
+      animation: popupBounce .5s ease-out, shake .2s infinite .5s;
+      z-index: 10000;
+    }
+    .malware-popup { top: 15%; left: 10%; transform: rotate(-5deg); }
+    .malware-popup.popup-2 { top: 40%; right: 5%; left: auto; transform: rotate(3deg); animation-delay: .3s; }
+    .malware-popup.popup-3 { bottom: 25%; left: 15%; top: auto; transform: rotate(-2deg); animation-delay: .6s; }
+    @keyframes popupBounce {
+      0% { transform: scale(0) rotate(0deg); opacity: 0; }
+      50% { transform: scale(1.2) rotate(5deg); }
+      100% { transform: scale(1) rotate(-5deg); opacity: 1; }
+    }
+    .popup-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #ff3333;
+      text-align: center;
+      margin-bottom: 6px;
+    }
+    .popup-text {
+      font-size: 12px;
+      color: #ffaaaa;
+      text-align: center;
+    }
+    .malware-btn {
+      background: linear-gradient(135deg, #00aa00, #008800);
+      border: 3px solid #00ff00;
+      border-radius: 12px;
+      padding: 18px 24px;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      animation: pulseGreen 1s infinite;
+      box-shadow: 0 0 20px rgba(0,255,0,.5);
+      margin-top: 20px;
+    }
+    @keyframes pulseGreen {
+      0%, 100% { box-shadow: 0 0 20px rgba(0,255,0,.5); }
+      50% { box-shadow: 0 0 40px rgba(0,255,0,.8); }
+    }
+    .malware-small {
+      color: #666;
+      font-size: 11px;
+      text-align: center;
+      margin-top: 12px;
+    }
+
     /* Tier badge */
     .tier-badge {
       background: linear-gradient(135deg, rgba(212,175,55,.15) 0%, rgba(212,175,55,.05) 100%);
@@ -751,6 +915,48 @@
   <!-- Confetti container -->
   <div class="confetti-container" id="confetti"></div>
 
+  <!-- Fake malware overlay -->
+  <div class="malware-overlay" id="malwareOverlay">
+    <div class="malware-screen">
+      <div class="malware-header">
+        <div class="malware-icon">⚠️</div>
+        <div class="malware-title">ADVARSEL!</div>
+      </div>
+      <div class="malware-alert">
+        <div class="malware-virus">🦠 VIRUS FUNDET! 🦠</div>
+        <div class="malware-text">
+          Din enhed er blevet inficeret med <strong>27 vira</strong>!<br><br>
+          <span class="blink">DIN BROWSER ER HACKET!</span><br><br>
+          Alle dine data bliver slettet om:<br>
+          <div class="malware-countdown" id="malwareCountdown">00:05</div>
+        </div>
+        <div class="malware-progress">
+          <div class="malware-progress-bar" id="malwareProgressBar"></div>
+        </div>
+        <div class="malware-details">
+          <div class="malware-line">📁 Sletter billeder... <span class="malware-pct" id="mp1">0%</span></div>
+          <div class="malware-line">💳 Stjæler kreditkort... <span class="malware-pct" id="mp2">0%</span></div>
+          <div class="malware-line">🔑 Hacker passwords... <span class="malware-pct" id="mp3">0%</span></div>
+          <div class="malware-line">📧 Sender spam... <span class="malware-pct" id="mp4">0%</span></div>
+        </div>
+        <div class="malware-popup">
+          <div class="popup-title">⛔ KRITISK FEJL ⛔</div>
+          <div class="popup-text">System32 er blevet slettet!</div>
+        </div>
+        <div class="malware-popup popup-2">
+          <div class="popup-title">🔓 HACKED 🔓</div>
+          <div class="popup-text">IP-adresse: 192.168.1.69 LÆKKET!</div>
+        </div>
+        <div class="malware-popup popup-3">
+          <div class="popup-title">💀 RANSOMWARE 💀</div>
+          <div class="popup-text">Betal 10.000 kr i Bitcoin NU!</div>
+        </div>
+      </div>
+      <button class="malware-btn" id="malwareClose">🛡️ KLIK HER FOR AT FJERNE VIRUS 🛡️</button>
+      <div class="malware-small">Eller drik ikke alkohol når du er gravid</div>
+    </div>
+  </div>
+
   <!-- Modal -->
   <div class="modal-overlay" id="modalOverlay">
     <div class="modal" id="stepModal">
@@ -839,6 +1045,28 @@
       </div>
       <div class="screen-bottom">
         <button class="btn btn-gold" id="n-gender" disabled style="opacity:.4">Næste</button>
+      </div>
+    </div>
+
+    <!-- PREGNANT (kvinde only) -->
+    <div class="screen" id="s-pregnant">
+      <div class="screen-top">
+        <div class="icon">🤰</div>
+        <h1 class="title">Er du gravid?</h1>
+        <p class="subtitle">Dette er vigtigt for beregningen</p>
+        <div class="pick-grid-2">
+          <div class="pick-card" id="pick-pregnant-yes" data-pregnant="ja">
+            <div class="pick-card-icon">✅</div>
+            <div class="pick-card-label">Ja</div>
+          </div>
+          <div class="pick-card" id="pick-pregnant-no" data-pregnant="nej">
+            <div class="pick-card-icon">❌</div>
+            <div class="pick-card-label">Nej</div>
+          </div>
+        </div>
+      </div>
+      <div class="screen-bottom">
+        <button class="btn btn-gold" id="n-pregnant" disabled style="opacity:.4">Næste</button>
       </div>
     </div>
 
@@ -1026,6 +1254,7 @@
     let modalDragY = 0;
     let selectedGender = null;   // 'mand' | 'kvinde'
     let selectedWeight = 1.00;   // multiplier
+    let selectedPregnant = null; // 'ja' | 'nej'
 
     const $ = id => document.getElementById(id);
 
@@ -1303,9 +1532,11 @@
         const e = $('s-' + id);
         if (e) e.classList.remove('slide-in','slide-out-left','slide-out-right','enter-from-left');
       });
-      selectedGender = null; selectedWeight = 1.00;
+      selectedGender = null; selectedWeight = 1.00; selectedPregnant = null;
       document.querySelectorAll('[data-gender]').forEach(c => c.classList.remove('selected'));
+      document.querySelectorAll('[data-pregnant]').forEach(c => c.classList.remove('selected'));
       $('n-gender').disabled = true; $('n-gender').style.opacity = '.4';
+      $('n-pregnant').disabled = true; $('n-pregnant').style.opacity = '.4';
       $('weightInput').value = '';
       $('s-login').classList.add('slide-in');
       current = 'login';
@@ -1404,22 +1635,98 @@
       if (!selectedGender) return;
       haptic();
       if (selectedGender === 'kvinde') {
-        // Special path: show result 20 with Kvinde tier
-        selectedWeight = 1.00;
-        const tier = { icon: '🎪', name: 'Dameteltet på dølle', desc: 'Gi\' den gas!' };
-        go('result', 'forward');
-        setTimeout(() => {
-          confetti();
-          animateNumber($('resNum'), 20);
-          $('resRaw').textContent = '';
-          $('resultIcon').textContent = tier.icon;
-          $('tierName').textContent = tier.name;
-          $('tierDesc').textContent = tier.desc;
-        }, 250);
+        // Go to pregnancy question first
+        go('pregnant', 'forward');
       } else {
         go('weight', 'forward');
       }
     };
+
+    // ── Pregnancy question (kvinde only) ──────────────────────────
+    document.querySelectorAll('[data-pregnant]').forEach(card => {
+      card.addEventListener('click', () => {
+        haptic();
+        selectedPregnant = card.dataset.pregnant;
+        document.querySelectorAll('[data-pregnant]').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        const btn = $('n-pregnant');
+        btn.disabled = false;
+        btn.style.opacity = '1';
+      });
+    });
+
+    function showKvindeResult() {
+      selectedWeight = 1.00;
+      const tier = { icon: '🎪', name: 'Dameteltet på dølle', desc: 'Gi\' den gas!' };
+      go('result', 'forward');
+      setTimeout(() => {
+        confetti();
+        animateNumber($('resNum'), 20);
+        $('resRaw').textContent = '';
+        $('resultIcon').textContent = tier.icon;
+        $('tierName').textContent = tier.name;
+        $('tierDesc').textContent = tier.desc;
+      }, 250);
+    }
+
+    function showMalware() {
+      const overlay = $('malwareOverlay');
+      overlay.classList.add('show');
+      // Animate the fake progress
+      let progress = 0;
+      const pcts = [$('mp1'), $('mp2'), $('mp3'), $('mp4')];
+      const progressBar = $('malwareProgressBar');
+      const countdown = $('malwareCountdown');
+      let seconds = 5;
+
+      const progressInterval = setInterval(() => {
+        progress += Math.random() * 15 + 5;
+        if (progress > 100) progress = 100;
+        progressBar.style.width = progress + '%';
+        pcts.forEach((p, i) => {
+          const val = Math.min(100, Math.floor(progress + (i * 10) - 20 + Math.random() * 30));
+          p.textContent = Math.max(0, val) + '%';
+        });
+      }, 200);
+
+      const countdownInterval = setInterval(() => {
+        seconds--;
+        countdown.textContent = '00:0' + Math.max(0, seconds);
+        if (seconds <= 0) {
+          clearInterval(countdownInterval);
+          countdown.textContent = '💀💀💀';
+        }
+      }, 1000);
+
+      // Store intervals for cleanup
+      overlay.dataset.progressInterval = progressInterval;
+      overlay.dataset.countdownInterval = countdownInterval;
+    }
+
+    function closeMalware() {
+      const overlay = $('malwareOverlay');
+      clearInterval(parseInt(overlay.dataset.progressInterval));
+      clearInterval(parseInt(overlay.dataset.countdownInterval));
+      overlay.classList.remove('show');
+      // Reset state
+      selectedPregnant = null;
+      document.querySelectorAll('[data-pregnant]').forEach(c => c.classList.remove('selected'));
+      $('n-pregnant').disabled = true;
+      $('n-pregnant').style.opacity = '.4';
+      go('gender', 'back');
+    }
+
+    $('n-pregnant').onclick = () => {
+      if (!selectedPregnant) return;
+      haptic();
+      if (selectedPregnant === 'ja') {
+        showMalware();
+      } else {
+        showKvindeResult();
+      }
+    };
+
+    $('malwareClose').onclick = closeMalware;
 
     // ── Weight input ──────────────────────────────────────────
     function getWeightMultiplier(kg) {
@@ -1471,10 +1778,12 @@
     $('restartBtn').onclick = () => {
       haptic();
       ['vol','ath','atm','sleep','meat','bread','greens','fruit','liquid','water','weightInput'].forEach(id => $(id).value = '');
-      // Reset gender + weight
-      selectedGender = null; selectedWeight = 1.00;
+      // Reset gender + weight + pregnant
+      selectedGender = null; selectedWeight = 1.00; selectedPregnant = null;
       document.querySelectorAll('[data-gender]').forEach(c => c.classList.remove('selected'));
+      document.querySelectorAll('[data-pregnant]').forEach(c => c.classList.remove('selected'));
       $('n-gender').disabled = true; $('n-gender').style.opacity = '.4';
+      $('n-pregnant').disabled = true; $('n-pregnant').style.opacity = '.4';
       go('gender','back');
     };
     $('editBtn').onclick = openModal;
